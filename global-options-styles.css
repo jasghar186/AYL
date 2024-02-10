@@ -1,0 +1,51 @@
+body {
+    font-size: 1.125rem;
+}
+h1 {
+    font-size: 36px;
+}
+body {
+    font-family: Arial, sans-serif;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-family: Arial, sans-serif;
+}
+.site-logo img, .site-branding img {
+    height: 75px;
+    object-fit: contain;
+}
+.bg-primary, button {
+    background-color: #F97D03 !important;
+}
+.border-primary {
+    border-color: #F97D03 !important;
+}
+.text-primary {
+    color: #F97D03 !important;
+}
+.bg-secondary, button {
+    background-color: #e5e4e4 !important;
+}
+.border-secondary {
+    border-color: #e5e4e4 !important;
+}
+.text-secondary {
+    color: #e5e4e4 !important;
+}
+.bg-accent, button {
+    background-color: #ffffff !important;
+}
+.text-accent,a, a[href], .text-link {
+    color: #ffffff;
+}
+.bg-headings-color {
+    background-color: #111111 !important;
+}
+.text-headings-color, h1 {
+    color: #111111;
+}
+@media (max-width: 575px) {
+    .thumbnail-mobile-hidden {
+        display: none !important;
+    }
+}
