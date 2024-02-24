@@ -22,9 +22,8 @@ get_header();
 
 			if ( is_home() && ! is_front_page() ) :
 				?>
-				<header class="bg-primary pt-5 pb-5">
-					<h1 class="page-title blog-header-title m-0 text-white fw-bold text-center"><?php single_post_title(); ?></h1>
-					<div class="pb-5 mb-5"></div>
+				<header class="bg-primary blog-title-header">
+					<h1 class="page-title blog-header-title m-0 pt-5 text-white fw-bold text-center text-uppercase"><?php single_post_title(); ?></h1>
 				</header>
 				<?php
 			endif;

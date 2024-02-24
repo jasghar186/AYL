@@ -74,7 +74,7 @@ jQuery(document).ready(function ($) {
             )
         })
 
-        if( productsData.length > 0 ) {
+        if (productsData.length > 0) {
             optionsArr['shopify_products_option'] = productsData;
         }
 
@@ -278,7 +278,7 @@ jQuery(document).ready(function ($) {
                 height: attachment.height,
             })
 
-            console.log('attachment' ,attachment);
+            console.log('attachment', attachment);
         });
 
         frame.open();
@@ -287,15 +287,45 @@ jQuery(document).ready(function ($) {
     $('.admin-product-image-wrapper').click((e) => uploadProductImage(e.target));
 
 
+    // Trigger select2 for Authorized users dropdown
+    // $('#authorized_users_for_exclusive_content_option, #exclusive_content_categories_option').select2({
+    //     placeholder: 'Select...',
+    //     allowClear: false,
+    //     width: '100%',
+    //     multiple: true,
+    // })
 
+    /** Get the selected values for user and categories */
+    // Assuming you have defined the selected elements
+    let selected_authorized_users = $('#authorized_users_for_exclusive_content_option option');
+    let selected_exclusive_content_categories = $('#exclusive_content_categories_option option');
 
+    // Get all selected values from the elements
+    let selected_authorized_users_arr = [];
+    let selected_exclusive_content_categories_arr = [];
 
+    $(selected_authorized_users).each(function(index, option) {        
+        if ($(option).attr('selected')) {
+            selected_authorized_users_arr.push($(option).val())
+        }
+    })
+    $(selected_exclusive_content_categories).each(function(index, option) {        
+        if ($(option).attr('selected')) {
+            selected_exclusive_content_categories_arr.push($(option).val())
+        }
+    })
 
-
-
-
-
-
-    
+    $('#authorized_users_for_exclusive_content_option').select2({
+        placeholder: 'Select...',
+        allowClear: false,
+        width: '100%',
+        multiple: true,
+    }).val(selected_authorized_users_arr).trigger('change')
+    $('#exclusive_content_categories_option').select2({
+        placeholder: 'Select...',
+        allowClear: false,
+        width: '100%',
+        multiple: true,
+    }).val(selected_exclusive_content_categories_arr).trigger('change')
 
 });

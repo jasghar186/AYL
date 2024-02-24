@@ -2,16 +2,21 @@ body {
     font-size: 1.125rem;
 }
 h1 {
-    font-size: 36px;
+    font-size: calc(42px / 2);
+}
+@media (min-width: 992px) {
+	 h1 {
+		font-size: 42px;
+	}
 }
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Open Sans", sans-serif;
 }
 h1, h2, h3, h4, h5, h6 {
-    font-family: Arial, sans-serif;
+    font-family: "Work Sans", sans-serif;
 }
 .site-logo img, .site-branding img {
-    height: 75px;
+    height: 100px;
     object-fit: contain;
 }
 .bg-primary, button {

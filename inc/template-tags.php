@@ -62,7 +62,7 @@ if ( ! function_exists( 'automate_life_last_revised' ) ):
 			'<span class="revision-date">' . date_i18n( 'M j, Y', strtotime( get_the_modified_date( 'Y-m-d H:i:s' ) ) ) . '</span>'
 		);
 	
-		echo '<span class="byline d-inline-block font-md text-dark fw-semibold"> ' . $revised_byline . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped	
+		echo '<span class="byline d-inline-block font-md text-dark fw-normal"> ' . $revised_byline . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped	
 	}
 endif;
 
@@ -224,9 +224,13 @@ if ( ! function_exists( 'automate_life_email_recaptcha' ) ):
 		placeholder="Enter Your Email Address"
 		class="p-3 rounded-3 w-100 border-0 '.($theme === 'dark' ? 'bg-primary text-light placeholder-white' : 'bg-white text-dark placeholder-black').'">
 		</label>
+		<label for="lead-form-prevent-submission" class="form-hidden-field">
+		<input type="text" class="lead-form-prevent-submission form-hidden-field" name="lead-form-prevent-submission"/>
+		</label>
 		<input type="submit" value="subscribe"
 		class="text-capitalize text-center position-absolute top-50 border-0
 		translate-middle-y rounded-2 '.($theme === 'dark' ? 'bg-white text-dark' : 'bg-primary text-light').'">
+		<p class="lead-form-response p-0 m-0 position-absolute start-0 d-none" style="bottom:-2rem;"></p>
 		</form>';
 
 		return $form;
@@ -253,10 +257,11 @@ if ( ! function_exists( 'automate_life_email_recaptcha_layout_2' ) ):
 		<label for="'.$placement.'" class="w-100 d-block">
 		<input type="email" name="'.$placement.'" id="'.$placement.'" required
 		placeholder="Enter Your Email"
-		class="p-3 rounded-3 w-100 border-0">
+		class="p-3 rounded-3 w-100 border">
 		</label>
 		<input type="submit" value="subscribe"
-		class="text-uppercase bg-primary text-center w-100 d-block fs-2 rounded-2 text-white mt-4">
+		class="text-uppercase bg-primary text-center w-100 d-block fs-3 rounded-2 text-white mt-3">
+		<p class="lead-form-response p-0 m-0 position-absolute start-0 d-none" style="bottom:-2rem;"></p>
 		</form>';
 
 		return $form;

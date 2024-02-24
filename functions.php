@@ -14,8 +14,8 @@ if ( ! defined( '_S_VERSION' ) ) {
 
 if(!defined('company_socials')) {
 	$urls = array(
-		'twitter_option', 'facebook_option', 'tiktok_option', 'youtube_option',
-		'pinterest_option', 'instagram_option',
+		'twitter_option', 'youtube_option', 'pinterest_option', 'instagram_option',
+		'facebook_option', 'facebook_group_option',
 	);
 
 	define('COMPANY_SOCIALS_URLS', $urls);
@@ -59,6 +59,7 @@ function automate_life_setup() {
 		* @link https://developer.wordpress.org/themes/functionality/featured-images-post-thumbnails/
 		*/
 	add_theme_support( 'post-thumbnails' );
+	add_post_type_support('page', 'excerpt');
 
 	// This theme uses wp_nav_menu() in one location.
 	register_nav_menus(
@@ -143,6 +144,13 @@ function automate_life_setup() {
 				'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
 			),
 		);
+
+		/** Get Current user */
+		$current_admin = wp_get_current_user();
+		if($current_admin->exists() && in_array('administrator', $current_admin->roles)) {
+			$current_admin_login = $current_admin->data->user_login;	
+		}
+
 		// Set default options
 		$default_options = array(
 			'change_font_size_option' => '1.125rem',
@@ -167,6 +175,7 @@ function automate_life_setup() {
 			'article_navigation_option' => 0,
 			'twitter_option' => '',
 			'facebook_option' => '',
+			'facebook_group_option' => '',
 			'tiktok_option' => '',
 			'youtube_option' => '',
 			'pinterest_option' => '',
@@ -174,6 +183,10 @@ function automate_life_setup() {
 			'our_latest_youtube_videos_option' => serialize(array()),
 			'shopify_products_option' => serialize($shopify_products_arr),
 			'lead_form_popup_timer_option' => 15000,
+			'article_schema_type_option' => 'Article',
+			'number_of_words_to_show_option' => 150,
+			'authorized_users_for_exclusive_content_option' => serialize(array($current_admin_login)),
+			'exclusive_content_categories_option' => serialize(array()),
 		);
 
 		foreach ($default_options as $option_name => $default_value) {
@@ -186,8 +199,43 @@ function automate_life_setup() {
 		// Mark the theme as activated
         update_option('automate_life_theme_activated', '1');
 	}
+
+	// Check if the WP Mail SMTP function exists
+    if (!function_exists('wp_mail_smtp')) {
+        // WP Mail SMTP function does not exist, so the plugin might not be active
+        $message = __('Please activate the WP Mail SMTP plugin to ensure proper email functionality.', 'your-text-domain');
+        printf('<div class="notice notice-error"><p>%s</p></div>', esc_html($message));
+    }
+
+	
 }
 add_action( 'after_setup_theme', 'automate_life_setup' );
+
+/**
+ * On theme activation
+ */
+function automate_life_theme_activation_hook() {
+    /** Create and publish a home page and set the website homepage to this */
+	$existing_homepage = get_page_by_title('Home');
+	if(!$existing_homepage) {
+		$home_page_args = array(
+			'post_title'    => 'Home',
+			'post_status'   => 'publish',
+			'post_type'     => 'page',
+			'post_content'  => 'Your description here',
+			'post_excerpt'	=> 'Post excerpt here',
+		);
+		// Insert the page into the database
+		$home_page_id = wp_insert_post($home_page_args);
+		// Set the page as the homepage
+		if ($home_page_id !== 0) {
+			update_option('page_on_front', $home_page_id);
+			update_option('show_on_front', 'page');
+		}
+	}
+}
+add_action( 'after_switch_theme', 'automate_life_theme_activation_hook' );
+
 
 /**
  * Set the content width in pixels, based on the theme's design and stylesheet.
@@ -258,11 +306,15 @@ function automate_life_scripts() {
 		'ajax_url' => admin_url('admin-ajax.php'),
 		'email_popup_timer' => get_option('lead_form_popup_timer_option') ?? 15000,
 		'page_scroll_limit' => get_option('page_scroll_limit_option') ?? 30,
+		'is_subscriber' => isset($_COOKIE['user_is_subscribed']) ? $_COOKIE['user_is_subscribed'] : '',
 	));
 
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
 	}
+
+	/** Responsive voices script */
+	// wp_enqueue_script('responsive-voice-script', 'https://code.responsivevoice.org/responsivevoice.js?key=INzQM4ks', array(), '', true);
 }
 add_action( 'wp_enqueue_scripts', 'automate_life_scripts' );
 
@@ -273,7 +325,9 @@ function automate_life_admin_scripts() {
 	
 	if ( isset( $_GET['page'] ) && $_GET['page'] === 'automate-life-settings' ) {
         wp_enqueue_style( 'automate-life-bootstrap-style', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css', array(), '5.3.2', 'all' );
+		wp_enqueue_style( 'automate-life-script2-style', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css', array(), '4.1.0', 'all' );
 		wp_enqueue_script('automate-life-bootstrap-script', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js', array('jquery'), '5.3.2', true);
+		wp_enqueue_script('automate-life-select2-script', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js', array('jquery'), '4.1.0', true);
     }
 	
 	wp_enqueue_style( 'automate-life-template-style', get_template_directory_uri() . '/assets/css/style.css', array(), _S_VERSION, 'all' );
@@ -377,8 +431,13 @@ function automate_life_create_css_callback() {
             "}\n";
     } else if ($selector === 'h1_font_size_option') {
         $cssContent .= "h1 {\n" .
-            "    font-size: $value;\n" .
+            "    font-size: calc($value / 2);\n" .
             "}\n";
+		$cssContent .= "@media (min-width: 992px) {\n" .
+			"	 h1 {\n".
+			"		font-size: $value;\n".
+			"	}\n".
+			"}\n";
     } else if ($selector === 'heading_font_option') {
         $decodedHeadingFontFamily = preg_replace('/[\\\\]/', '', $value);
         $cssContent .= "h1, h2, h3, h4, h5, h6 {\n" .
@@ -392,7 +451,12 @@ function automate_life_create_css_callback() {
     } else if ($selector === 'apply_h1_font_size_to_all_headings_option' && intval($value) === 1) {
 		$h1FontSize = $optionsArr['h1_font_size_option'];
 		$cssContent .= "h1, h2, h3, h4, h5, h6 {\n" .
-			"    font-size: $h1FontSize;\n" .
+			"    font-size: calc($h1FontSize / 2);\n" .
+			"}\n";
+		$cssContent .= "@media (min-width: 992px) {\n" .
+			"	  h1,h2,h3,h4,h5,h6 {\n".
+			"   	font-family: $h1FontSize;\n" .
+			"	}\n".
 			"}\n";
 	}else if($selector === 'primary_color_option') {
 		$cssContent .= ".bg-primary, button {\n" .
@@ -453,7 +517,7 @@ function automate_life_create_css_callback() {
 	foreach($options as $optionName => $value) {
 		// Add validation for URLS
 		if( in_array($optionName, array('twitter_option', 'facebook_option','tiktok_option',
-		'youtube_option', 'pinterest_option', 'instagram_option') ) ) {
+		'youtube_option', 'pinterest_option', 'instagram_option', 'facebook_group_option') ) ) {
 
 			$validatedUrl = filter_var($value, FILTER_VALIDATE_URL);
 			if($validatedUrl === false) {
@@ -498,6 +562,8 @@ function automate_life_create_css_callback() {
 			if($optionName === 'our_latest_youtube_videos_option' && !empty($value)) {
 				$value = serialize($value);
 			}else if($optionName === 'shopify_products_option' && !empty($value)) {
+				$value = serialize($value);
+			}else if(is_array($value)) {
 				$value = serialize($value);
 			}
 
@@ -593,8 +659,8 @@ function remove_product_image_callback() {
 			$articlesPosts->the_post();
 
 			$articles .= '<div class="col-12 col-md-4 mb-4 mb-lg-0">'.
-			'<div class="post-card">'.
-			'<a href="'.get_the_permalink().'" class="post-thumbnail d-flex justify-content-center mb-30">';
+			'<div class="post-card recent-articles-post-card">'.
+			'<a href="'.get_the_permalink().'" class="post-thumbnail d-flex justify-content-center mb-3">';
 			
 			if (has_post_thumbnail()) {
 				$thumbnail_url = get_the_post_thumbnail_url();
@@ -603,24 +669,24 @@ function remove_product_image_callback() {
 				alt="' . get_the_title() . '"
 				title="'. get_the_title() .'"
 				loading="lazy"
-				class="img-fluid rounded-4"
+				class="img-fluid"
 				width="382"
 				height="238"
 				/>';
 			} else {
-				$dummy_image_url = esc_url(site_url('/wp-content/themes/automate-life/assets/images/dummy-post-thumbnail.webp'));
+				$dummy_image_url = esc_url(site_url('/wp-content/themes/automate-life/assets/images/black-friday.webp'));
 				$articles .= '<img
 				data-src="' . $dummy_image_url . '"
 				alt="' . get_the_title() . '"
 				loading="lazy"
-				class="img-fluid rounded-4"
+				class="img-fluid"
 				width="382"
 				height="238"
 				/>';
 			}
 			
 			$articles .= '</a>'.
-			'<div class="post-content px-3">'.
+			'<div class="post-content px-3 pb-30">'.
 			'<h3 class="text-center text-capitalize recent-articles-title overflow-hidden">'.
 			'<a href="'.get_the_permalink().'"
 			class="text-decoration-none fw-semibol fs-3 text-dark">'.wp_trim_words(get_the_title(), 7).'</a>'.
@@ -661,7 +727,7 @@ function remove_product_image_callback() {
 	$reading_time_minutes = max(1, ceil($word_count / $words_per_minute));
 
     // Output the estimated reading time
-    echo '<p class="reading-time m-0 font-md fw-semibold">' . $reading_time_minutes . ' min read</p>';
+    echo '<p class="reading-time m-0 font-md fw-normal">' . $reading_time_minutes . ' min read</p>';
 }
 
 /**
@@ -903,19 +969,21 @@ add_action('wp_ajax_nopriv_post_liked_disliked', 'savepostlikeddislikedstatus');
  */
 function automate_life_email_lead_popup() {
 	$popup = ob_start(); ?>
-	<div class="email-popup-wrapper position-fixed top-0 start-0 vw-100 vh-100 d-none">
+	<div class="email-popup-wrapper position-fixed top-0 start-0 vw-100 vh-100 d-none" style="z-index: 10000;">
 		<div class="email-popup-overlay position-absolute top-0 start-0 bg-secondary z-1 w-100 h-100"></div>
 		<div class="container d-flex align-items-center h-auto position-relative z-3">
 			<div class="bg-white w-100 flex-grow-1 lead-form-image">
 
 				<button type="button" data-bs-dismiss="modal"
 				aria-label="Close"
-				class="btn btn-close position-absolute top-0 end-0 cursor-pointer
-				email-popup-close"></button>
+				class="btn btn-close position-absolute cursor-pointer
+				email-popup-close bg-transparent p-0 text-dark font-xl z-3 opacity-100" style="top:1rem;right:1.5rem;">
+					<i class="bi bi-x-lg"></i>
+				</button>
 
-			<div class="d-flex email-popup-content-container h-100">
-				<div class="w-25">
-					<img class="img-fluid h-100 object-fit-cover w-100"
+			<div class="d-flex flex-wrap email-popup-content-container h-100">
+				<div class="email-popup-content-image-wrapper">
+					<img class="img-fluid object-fit-cover w-100 h-100"
 					data-src="<?php echo get_template_directory_uri() ?>/assets/images/left-side-popup-img.jpeg"
 					alt="Subscribe to our monthly newsletter"
 					title="Subscribe to our monthly newsletter"
@@ -924,7 +992,7 @@ function automate_life_email_lead_popup() {
 					height="800">
 				</div>
 
-				<div class="w-75 position-relative p-4">
+				<div class="position-relative p-2 p-lg-4">
 					<!-- Overlay image -->
 					<img src="<?php echo site_url(); ?>/wp-content/themes/automate-life/assets/images/right-sidebg-img.jpeg"
 					alt="" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover opacity-50 z-0 pe-none user-select-none">
@@ -934,12 +1002,12 @@ function automate_life_email_lead_popup() {
 						<div class="email-popup-site-logo mx-auto mb-3 d-flex w-100 justify-content-center d-none">
 							<?php the_custom_logo(); ?>
 						</div>
-						<h3 class="font-30 mb-0 text-center fw-normal">In our monthly newsletter you'll receive</h3>
+						<h3 class="popup-subheading mb-0 text-center">In our monthly newsletter you'll receive</h3>
 						<h2 class="email-popup-heading fw-bold mb-1 pb-10 lh-sm text-center">START LEARNING ABOUT <br> SMART HOMES</h2>
-						<ul class="list-unstyled text-center ms-0 mb-3 p-0">
-							<li class="text-capitalize font-lg fw-bold">News & Announcements</li>
-							<li class="text-capitalize font-lg fw-bold">New Articles</li>
-							<li class="text-capitalize font-lg fw-bold">New Releases</li>
+						<ul class="list-unstyled text-center ms-0 mb-2 mb-lg-3 p-0">
+							<li class="text-capitalize font-md fw-bold">News & Announcements</li>
+							<li class="text-capitalize font-md fw-bold">New Articles</li>
+							<li class="text-capitalize font-md fw-bold">New Releases</li>
 						</ul>
 
 						<!-- Lead capture form -->
@@ -958,3 +1026,130 @@ function automate_life_email_lead_popup() {
 }
 
 add_action('wp_footer', 'automate_life_email_lead_popup');
+
+function automatelife_security_headers() {
+    header("X-Frame-Options: DENY");
+	header("Content-Security-Policy: default-src * 'unsafe-inline'; img-src *; media-src *");
+}
+add_action('send_headers', 'automatelife_security_headers');
+
+
+
+/** Handle Form Submission */
+add_action('wp_ajax_automatelife_handle_form_submission', 'automatelife_handle_form_submission_callback');
+add_action('wp_ajax_nopriv_automatelife_handle_form_submission', 'automatelife_handle_form_submission_callback');
+
+function automatelife_handle_form_submission_callback() {
+    $user_email = isset($_POST['email']) ? sanitize_email($_POST['email']) : null;
+    $admin_email = get_option('admin_email');
+
+    // Validate email
+    if (!$user_email || !filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
+        wp_send_json_error('Please enter a valid email address');
+        exit;
+    }
+
+    $subject = 'New Form Submitted';
+    $message = 'New form submitted from ' . $user_email;
+
+    $handle_submission = wp_mail($admin_email, $subject, $message);
+
+    if ($handle_submission) {
+        wp_send_json_success('Form submitted');
+    } else {
+        wp_send_json_error('Something went wrong, please try again');
+    }
+
+    wp_die();
+}
+
+
+/** Send Feedback sidebar */
+function automate_life_send_feedback_sidebar() {
+	$sidebar = ob_start(); ?>
+		<div class="send-feedback-wrapper position-fixed top-0 start-0 h-100 w-100" style="z-index:10000;">
+			<div class="send-feedback-overlay position-absolute top-0 start-0 z-2 w-100 h-100"></div>
+			<article class="send-feedback-sidebar position-absolute z-3 overflow-y-scroll bg-white top-50 translate-middle-y">
+				<div class="send-feedback-header d-flex align-items-center justify-content-between p-3 p-lg-4">
+					<h3 class="text-capitalize m-0 fs-5 fs-lg-1 text-dark">Send feedback to automate your life</h3>
+					<span class="send-feedback-close fs-4 fw-bold cursor-pointer">
+						<i class="bi bi-x-lg"></i>
+					</span>
+				</div>
+				<div class="send-feedback-content pt-30">
+					<h4 class="mb-3 mb-lg-4 fs-5 fs-lg-1 text-dark px-3 px-lg-4">Describe your feedback</h4>
+					<form action="#" method="POST" class="send-feedback-form">
+						<div class="px-3 px-lg-4">
+							<label for="send-feedback-textarea" class="w-100">
+								<textarea name="send-feedback-textarea" id="send-feedback-textarea"
+								cols="30" rows="10" class="w-100 p-30 text-dark font-xxl"
+								required placeholder="Write here your feedback"></textarea>
+							</label>
+
+							<label for="send-feedback-postname" class="form-hidden-field">
+								<input type="text" value="<?php echo get_the_title(); ?>"
+								class="form-hidden-field send-feedback-postname" id="send-feedback-postname" readonly />
+							</label>
+
+							<!-- Honeypot fields -->
+							<label for="send-feedback-form-prevent-submission">
+								<input type="text" class="form-prevent-submission form-hidden-field"
+								name="form-prevent-submission" id="send-feedback-form-prevent-submission">
+							</label>
+
+							<p class="my-3 my-lg-4 font-20 text-dark">Lorem ipsum dolor sit amet consectetur adipisicing elit. Porro, ipsam.</p>
+							<p class="font-20 text-dark lh-base mb-4 mb-lg-5 pb-3 pb-lg-4">Lorem ipsum dolor sit amet consectetur adipisicing elit.
+								Libero minima ipsum tempore neque dolor quis esse animi. Tempora quam,
+								quibusdam, quaerat molestiae incidunt delectus minus totam,
+								reprehenderit eveniet saepe excepturi?</p>
+						</div>
+						
+						<div class="send-feedback-footer py-4 border-top ms-auto px-30 d-flex align-items-center justify-content-end gap-4">
+							<p class="feedback-response-text rounded font-lg p-2 border m-0 d-none"></p>
+							<div class="spinner-border text-primary d-none send-feedback-spinner" role="status">
+								<span class="sr-only">Loading...</span>
+							</div>
+							<input type="submit" value="Send" class="bg-primary font-xl d-block text-white text-capitalize px-30 py-10 rounded" />
+						</div>
+					</form>
+				</div>
+
+			</article>
+		</div>
+	<?php
+	$sidebar = ob_get_clean();
+	echo $sidebar;
+}
+
+add_action('wp_footer', 'automate_life_send_feedback_sidebar');
+
+
+/** Handle Send Feedback Form Submission */
+add_action('wp_ajax_submit_user_feedback', 'submit_user_feedback_callback');
+add_action('wp_ajax_nopriv_submit_user_feedback', 'submit_user_feedback_callback');
+
+function submit_user_feedback_callback() {
+	$feedback = isset($_POST['feedbackResponse']) ? sanitize_text_field($_POST['feedbackResponse']) : '';
+	$post_name = isset($_POST['postName']) ? sanitize_text_field($_POST['postName']) : '';
+	$admin_email = get_option('admin_email');
+
+	if(!empty($feedback) && !empty($feedback)) {
+		$subject = 'You got a feedback on your post';
+		$message = 'Feedback: ' . $feedback . "\n";
+		$message .= 'Post Name: ' . $post_name;
+
+		$handle_feedback_submission = wp_mail($admin_email, $subject, $message);
+		if($handle_feedback_submission) {
+			wp_send_json_success('Feedback Sent Successfully');
+		}else {
+			wp_send_json_error('Something went wrong while sending the feedback.');
+		}
+
+	}else {
+		// If the feedback is empty
+		wp_send_json_error('Feedback cannot be empty');
+		exit;	
+	}
+
+	wp_die();
+}

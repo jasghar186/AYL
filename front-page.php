@@ -1,11 +1,11 @@
 <?php get_header(); ?>
 
 <!-- Hero Section -->
-<section class="container-fluid hero-section border-bottom border-dark">
+<section class="container-fluid hero-section">
     <div class="row h-100">
         <div class="col-12 col-lg-7 position-relative d-flex flex-column justify-content-center mt-5 mt-lg-0 mb-5">
             <p class="text-primary-user m-0 text-capitalize">Hello I'm Marty Spargo</p>
-            <h1 class="fw-semibold">Smart Homes <br><span class="text-primary-user">Expert</span></h1>
+            <h1 class="fw-semibold">Smart Homes <br><span class="text-primary">Expert</span></h1>
             <p class="fs-4 text-capitalize m-0">Freelance web designer and developer</p>
 
             <!-- Lead Form -->
@@ -40,7 +40,7 @@
 <!------------- As Seen On Section ----------------->
 <section class="container-fluid <?php echo SITE_LAYOUT_SPACE; ?>">
     <h2 class="fw-semibold text-capitalize mb-5 text-center">As Seen On</h2>
-    <div class="row as-seen-on-row">
+    <div class="as-seen-on-row d-flex flex-wrap">
     <?php
         $asSeenOn = array(
             array(
@@ -75,10 +75,18 @@
                 'url' => 'As_seen_on_(8)',
                 'title' => 'Yahoo News',
             ),
+            array(
+                'url' => 'fox5',
+                'title' => 'Fox',
+            ),
+            array(
+                'url' => 'As_seen_on_govee',
+                'title' => 'Govee',
+            ),
         );
         foreach($asSeenOn as $image) {
-            echo '<div class="col mb-3 mb-lg-0">'.
-            '<div class="circular-image rounded-circle p-4 p-md-3">'.
+            echo '<div class="as_seen_on_column flex-grow-1 mb-3 mb-lg-0">'.
+            '<div class="rounded-circle p-4 p-md-3 d-flex align-items-center justify-content-center">'.
             '<img data-src="'.site_url().'/wp-content/themes/automate-life/assets/images/'.$image['url'].'.webp"
             width="128" height="128" loading="lazy" title="'.$image['title'].'" alt="'.$image['title'].'" class="img-fluid object-fit-contain" />'.
             '</div>'.
@@ -96,23 +104,27 @@
         $expertsArray = array(
             array(
                 'image' => 'expert-team-1',
-                'name' => 'natsuki',
-                'description' => 'I have been developing wordpress websites for like an year now',
+                'name' => 'Natsuki',
+                'description' => 'started out as a technician installing smart
+                homes for people over a decade ago. After working for some of the biggest',
             ),
             array(
                 'image' => 'expert-team-2',
-                'name' => 'natsuki',
-                'description' => 'I have been developing wordpress websites for like an year now',
+                'name' => 'Natsuki',
+                'description' => 'started out as a technician installing smart
+                homes for people over a decade ago. After working for some of the biggest',
             ),
             array(
                 'image' => 'expert-team-3',
-                'name' => 'natsuki',
-                'description' => 'I have been developing wordpress websites for like an year now',
+                'name' => 'Natsuki',
+                'description' => 'started out as a technician installing smart
+                homes for people over a decade ago. After working for some of the biggest',
             ),
         );
 
         foreach($expertsArray as $index => $experts) {
             echo '<div class="col-12 col-md-4 d-flex flex-column align-items-center '. ($index !== count($expertsArray) - 1 ? 'mb-5 pb-3' : '') .' mb-lg-0 pb-lg-0">'.
+            '<div class="expert-team-card bg-white">'.
             '<div class="rounded-image-wrapper">'.
             '<img
             data-src="'.site_url().'/wp-content/themes/automate-life/assets/images/'.$experts['image'].'.webp"
@@ -120,13 +132,17 @@
             title="'.$experts['name'].'"
             loading="lazy"
             width="382"
-            height="395" />'.
+            height="395"
+            class="w-100 h-100 img-fluid" />'.
             '</div>'.
-            '<div class="experts-card-content mt-3">'.
-            '<p class="text-center">Hey there! <br /> 
-            I\'m '.$experts['name'] .' ' . $experts['description'].' </p>'.
+            '<div class="experts-card-content mt-3 px-2 pb-30">'.
+            '<p class="text-left">Hey there! <br /> 
+            I\'m '.$experts['name'] .', ' . $experts['description'].' </p>'.
             '<div class="d-flex align-items-center justify-content-center">'.
-            '<a href="#" type="button" class="py-2 px-4 text-decoration-none bg-primary text-capitalize text-center rounded-circle-px">View More</a>'.
+            '<a href="#"
+            type="button"
+            class="bg-primary btn">View More</a>'.
+            '</div>'.
             '</div>'.
             '</div>'.
             '</div>';
@@ -167,7 +183,7 @@
 <!------------- Smart Products In Stock Section ----------------->
 <section class="container-fluid <?php echo SITE_LAYOUT_SPACE; ?>">
     <h2 class="fw-semibold text-capitalize mb-5 text-center">smart products in stock</h2>
-    <div class="row">
+    <div class="row smart-products-slick-mobile">
 
     <?php 
     $smartProducts = get_option('shopify_products_option') !== false ? unserialize(get_option('shopify_products_option')) : array();
@@ -183,7 +199,7 @@
         $img_alt = get_post_meta($attachment_id, '_wp_attachment_image_alt', true);
 
         $content .= '<div class="col-12 col-md-4">'.
-        '<div class="affiliated-products-card pt-3 pb-5 rounded-4">'.
+        '<div class="affiliated-products-card bg-white pt-3 pb-5">'.
         '<a class="d-inline-block product-image-wrapper d-flex justify-content-center"
         href="'. esc_attr($product['id']) .'"
         target="_blank">';
@@ -213,11 +229,12 @@
         $content .= '</a>'.
         '<div class="affiliated-product-content mt-30 px-2">'.
         '<h4 
-        class="mb-5 pb-1 text-center">
+        class="mb-2 pb-1 text-center text-lg-left">
         <a
         href="'.esc_url($product['url']).'"
-        class="text-dark text-capitalize text-left text-decoration-none font-30 fw-light"
-        target="_blank">'. wp_trim_words(esc_html($product['title']), 15) .'</a></h3>'.
+        class="text-dark text-capitalize text-decoration-none font-30 fw-light"
+        target="_blank">'. wp_trim_words(esc_html($product['title']), 15) .'</a></h4>'.
+        '<p class="text-center text-lg-left text-dark font-xl mb-5">'. esc_html($product['description']) .'</p>'.
         '<div class="d-flex align-items-center justify-content-center">'.
         '<a type="button"
         class="py-2 px-5 text-decoration-none bg-primary text-capitalize text-center rounded-circle-px mx-auto"
@@ -424,7 +441,7 @@
             height="540" />'.
             '<div class="d-flex align-items-center justify-content-center position-absolute translate-middle-x start-50">'.
             '<a type="button" href="'.esc_url(get_category_link($category->term_id)).'"
-            class="py-2 px-4 text-decoration-none bg-primary text-capitalize text-center rounded-circle-px">Read More</a>'.
+            class="bg-primary btn">Read More</a>'.
             '</div>'.
             '</div>'.
             '</div>';

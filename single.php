@@ -35,21 +35,13 @@ get_header();
 
 ?>
 
-	<main id="primary" class="site-main mt-5 pt-3">
+	<main id="primary" class="site-main pt-3 mt-lg-5">
 
 		<?php
 		while ( have_posts() ) :
 			the_post();
 
 			get_template_part( 'template-parts/content', 'single', $all_type_posts );
-
-			the_post_navigation(
-				array(
-					'prev_text' => '<span class="nav-subtitle">' . esc_html__( 'Previous:', 'automate-life' ) . '</span> <span class="nav-title">%title</span>',
-					'next_text' => '<span class="nav-subtitle">' . esc_html__( 'Next:', 'automate-life' ) . '</span> <span class="nav-title">%title</span>',
-				)
-			);
-
 
 		endwhile; // End of the loop.
 		?>

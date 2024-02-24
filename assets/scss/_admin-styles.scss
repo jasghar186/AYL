@@ -137,3 +137,21 @@ input.values-toggle-checkbox {
         object-fit: contain;
     }
 }
+
+
+// Select 2 dropdown multiple styling
+.select2-selection--multiple {
+    li {
+        background-color: $adminPrimaryColor !important;
+        color: white !important;
+        text-transform: capitalize !important;
+        border: unset !important;
+    }
+    li .select2-selection__choice__remove {
+        border-radius: 0 !important;
+        color: white !important;
+        &:hover {
+            background-color: $adminPrimaryColor !important;
+        }
+    }
+}

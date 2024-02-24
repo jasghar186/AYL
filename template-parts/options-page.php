@@ -37,41 +37,35 @@
         $page .= '<ul class="nav flex-column w-100" id="automate_life_options_tabs" role="tablist">'.
         '<li class="nav-item d-flex justify-content-start align-items-center" role="presentation">'.
         '<img src="'.get_template_directory_uri().'/assets/images/display.png" width="25" height="25" loading="lazy" />'.
-        '<button class="nav-link text-tabs p-2 active" id="display_tab"
+        '<button class="nav-link text-tabs p-2 text-primary active" id="display_tab"
         data-bs-toggle="tab" data-bs-target="#display_tab-pane"
         type="button" role="tab" aria-controls="display_tab-pane"
         aria-selected="true">Display</button>'.
         '</li>'.
         '<li class="nav-item d-flex justify-content-start align-items-center" role="presentation">'.
         '<img src="'.get_template_directory_uri().'/assets/images/advanced.png" width="25" height="25" loading="lazy" />'.
-        '<button class="nav-link text-tabs p-2" id="advanced_tab" data-bs-toggle="tab"
+        '<button class="nav-link text-tabs p-2 text-primary" id="advanced_tab" data-bs-toggle="tab"
         data-bs-target="#advanced_tab-pane" type="button" 
         role="tab" aria-controls="advanced_tab-pane"
         aria-selected="false">Advanced</button>'.
         '</li>'.
         '<li class="nav-item d-flex justify-content-start align-items-center" role="presentation">'.
         '<img src="'.get_template_directory_uri().'/assets/images/hooks.png" width="25" height="25" loading="lazy" />'.
-        '<button class="nav-link text-tabs p-2" id="hooks_tab" data-bs-toggle="tab"
+        '<button class="nav-link text-tabs p-2 text-primary" id="hooks_tab" data-bs-toggle="tab"
         data-bs-target="#hooks_tab-pane" type="button" role="tab"
         aria-controls="hooks_tab-pane" aria-selected="false">Hooks</button>'.
-        '</li>'.
-        '<li class="nav-item d-flex justify-content-start align-items-center" role="presentation">'.
-        '<img src="'.get_template_directory_uri().'/assets/images/critical-css.png" width="25" height="25" loading="lazy" />'.
-        '<button class="nav-link text-tabs p-2" id="critical_css_tab" data-bs-toggle="tab"
-        data-bs-target="#critical_css_tab-pane" type="button" role="tab"
-        aria-controls="critical_css_tab-pane" aria-selected="false">Critical CSS</button>'.
         '</li>'.
 		
 		'<li class="nav-item d-flex justify-content-start align-items-center" role="presentation">'.
         '<img src="'.get_template_directory_uri().'/assets/images/critical-css.png" width="25" height="25" loading="lazy" />'.
-        '<button class="nav-link text-tabs p-2" id="likedislike_tab" data-bs-toggle="tab"
+        '<button class="nav-link text-tabs p-2 text-primary" id="likedislike_tab" data-bs-toggle="tab"
         data-bs-target="#likedislike_css_tab-pane" type="button" role="tab"
         aria-controls="likedislike_css_tab-pane" aria-selected="false">Like Dislike</button>'.
         '</li>'.
 
         '<li class="nav-item d-flex justify-content-start align-items-center" role="presentation">'.
         '<img src="'.get_template_directory_uri().'/assets/images/advanced.png" width="25" height="25" loading="lazy" />'.
-        '<button class="nav-link text-tabs p-2" id="website_settings_tab" data-bs-toggle="tab"
+        '<button class="nav-link text-tabs p-2 text-primary" id="website_settings_tab" data-bs-toggle="tab"
         data-bs-target="#website_settings_tab-pane" type="button" role="tab"
         aria-controls="website_settings_tab-pane" aria-selected="false">Website Settings</button>'.
         '</li>'.
@@ -178,18 +172,30 @@
             '</div>';
         }
 
-        function option_right_structure_dropdown($title, $options) {
+        function option_right_structure_dropdown($title, $options, $isMultiple = false) {
 
             $id = strtolower( trim( str_replace(' ', '_', $title) ) );
 
             $selected = '';
+            $stored_option = get_option($id . '_option');
+            $unserialized_stored_option = is_serialized($stored_option) ? unserialize($stored_option) : false;
 
             $dropdown = '<div class="p-4 flex-grow-1 w-50">'.
             '<select id="'.$id.'_option" class="w-100 py-1">';
 
             foreach($options as $key => $value) {
-                if( get_option($id . '_option') !== false && htmlspecialchars(get_option($id . '_option'), ENT_QUOTES) === htmlspecialchars($value, ENT_QUOTES) ) {
-                    $selected = 'selected';
+                $selected = '';
+                /** If the value is an array */
+                if( get_option($id . '_option') !== false ) {
+                    if( $unserialized_stored_option !== false && is_array($unserialized_stored_option) ) {
+                        if (in_array(htmlspecialchars($value, ENT_QUOTES), $unserialized_stored_option)) {
+                            $selected = 'selected';
+                        }
+                    }else {
+                        if( htmlspecialchars(get_option($id . '_option'), ENT_QUOTES) === htmlspecialchars($value, ENT_QUOTES) ) {
+                            $selected = 'selected';
+                        }
+                    }
                 }
 
                 $dropdown .= '<option
@@ -204,6 +210,7 @@
             '</div>';
 
             return $dropdown;
+
         }
 
         function option_right_structure_toggle($title) {
@@ -645,6 +652,20 @@
                 ),
             ).
 
+            /** Facebook Group */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'facebook group',
+                ),
+                $this->option_right_structure_text_field(
+                    'facebook group',
+                    'input',
+                    true,
+                    'facebookgroup',
+                    'Enter Facebook Group URL',
+                ),
+            ).
+
             /** Tiktok */
             $this->option_wrapper(
                 $this->option_left_structure(
@@ -848,25 +869,69 @@
             );
         }
 
+        // Exclusive Content Settings
+        function exclusive_content_settings() {
+            return 
+            /** Number of words to show */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'Number of words to show',
+                    'Enter number of words to show before the exclusive content box',
+                    '300'
+                ),
+                $this->option_right_structure_text_field(
+                    'Number of words to show',
+                    'input',
+                    false,
+                    null,
+                    '150'
+                ),
+            ).
+
+            /** Authorized Authors */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'Authorized users for exclusive content',
+                    'Select the users you want to show the exclusive content for blog posts',
+                ),
+                $this->option_right_structure_dropdown(
+                    'Authorized users for exclusive content',
+                    $GLOBALS['authorized_users'],
+                ),
+            ).
+
+            /** Exclusive Content Categories */
+            $this->option_wrapper(
+                $this->option_left_structure(
+                    'Exclusive content categories',
+                    'Select the categories you want to show exclusive content for',
+                ),
+                $this->option_right_structure_dropdown(
+                    'Exclusive content categories',
+                    $GLOBALS['exclusive_content_categories'],
+                )
+            );
+        }
+
         /** SEO Settings */
         function automate_life_website_seo_settings() {
             return 
             
             /** Automate Life SEO Output */
-            $this->option_wrapper(
-                $this->option_left_structure(
-                    'Automatelife SEO Output',
-                    'Enable this option to have Automate life output basic SEO data. <br />
-                    Automate life disables this option entirely if it detects Yoast,
-                    RankMath or AIO as installed and active. For safety,
-                    it cannot be turned on while these plugs are active. For all other SEO Plug-ins,
-                    disable this to prevent outputting duplicate SEO data.',
-                    'disabled',
-                ),
-                $this->option_right_structure_toggle(
-                    'Automatelife SEO Output',
-                ),
-            ).
+            // $this->option_wrapper(
+            //     $this->option_left_structure(
+            //         'Automatelife SEO Output',
+            //         'Enable this option to have Automate life output basic SEO data. <br />
+            //         Automate life disables this option entirely if it detects Yoast,
+            //         RankMath or AIO as installed and active. For safety,
+            //         it cannot be turned on while these plugs are active. For all other SEO Plug-ins,
+            //         disable this to prevent outputting duplicate SEO data.',
+            //         'disabled',
+            //     ),
+            //     $this->option_right_structure_toggle(
+            //         'Automatelife SEO Output',
+            //     ),
+            // ).
             /** Schema Option */
             $this->option_wrapper(
                 $this->option_left_structure(
@@ -982,8 +1047,10 @@
         '<button class="save-display save-options">Save</button>'.
         '</div>';
         $email_popup_timer = new automate_life_accordion_options('Email popup settings', 'website_settings_tab-pane', 'website_customization_settings');
+        $exclusive_content_settings = new automate_life_accordion_options('Exclusive Content', 'website_settings_tab-pane', 'exclusive_content_settings');
 
         $settings .= $email_popup_timer->accordion_item();
+        $settings .= $exclusive_content_settings->accordion_item();
 
         $settings .= '</div>';
 

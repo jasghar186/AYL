@@ -1,4 +1,26 @@
 jQuery(document).ready(function ($) {
+
+
+  // Animate header search form width
+  $('header .animate-search-form').click(function () {
+    var formInput = $('header form input[type="search"]');
+    var currentLeft = formInput.css('left');
+
+    if (currentLeft === '0px') {
+      // If the current left is 0px, animate it to 100%
+      formInput.animate({ left: '100%' }, 300, function () {
+        // After animation, focus the input field
+        formInput.blur();
+      });
+    } else {
+      // If the current left is 100%, animate it to 0px
+      formInput.animate({ left: 0 }, 300, function () {
+        formInput.focus()
+      });
+    }
+  });
+
+
   $('.popular_brands_slider').slick({
     infinite: false,
     slidesToShow: 7,
@@ -25,14 +47,12 @@ jQuery(document).ready(function ($) {
     ]
   })
 
-  // Make images lazy load
-  // $('img[data-src]').each(function () {
-  //   $(this).attr('src', $(this).data('src'));
-  // });
-  // $('iframe[data-src]').each(function () {
-  //   $(this).attr('src', $(this).data('src'));
-  // });
-
+  // Convert h1 to h2 headings in blog content
+  $('.blog-content h1').each(function () {
+    var newElement = $('<h2>');
+    newElement.html($(this).html());
+    $(this).replaceWith(newElement);
+  })
 
   // Add headings in TOC in single blog page
   let headingH1 = $('.blog-content h1, .blog-content h2');
@@ -43,7 +63,7 @@ jQuery(document).ready(function ($) {
     let id = text.replace(/\s+/g, '_');
     $(heading).attr('id', id);
 
-    $('.toc').append(`<li class="list-unstyled lh-lg mb-1"><a href="#${id}" class="text-dark fw-light text-decoration-none text-capitalize">${text}</a></li>`);
+    $('.toc').append(`<li class="list-unstyled lh-lg mb-1"><a href="#${id}" class="text-dark fw-normal text-decoration-none text-capitalize">${text}</a></li>`);
 
     // Find child elements
     let subHeadingContainer = $('<ul class="list-unstyled p-0 ms-4"></ul>');
@@ -53,23 +73,33 @@ jQuery(document).ready(function ($) {
       let subHeadingId = subHeadingText.replace(/\s+/g, '_');
       $(subHeading).attr('id', subHeadingId);
 
-      subHeadingContainer.append(`<li class="lh-lg mb-1"><a href="#${subHeadingId}" class="text-dark fw-light text-decoration-none text-capitalize">${subHeadingText}</a></li>`);
+      subHeadingContainer.append(`<li class="lh-lg mb-1"><a href="#${subHeadingId}" class="text-dark fw-normal text-decoration-none text-capitalize">${subHeadingText}</a></li>`);
     });
 
     $('.toc').append(subHeadingContainer);
   });
 
+  $('.toggle-toc-mobile').click((e) => {
+    const tocWrapper = $('.toc-mobile-wrapper');
+    tocWrapper.animate({
+      height: 'toggle',
+      overflow: 'toggle'
+    }, function () {
+      const isExpanded = tocWrapper.is(':visible');
+      $('.toggle-toc-mobile-text').text(isExpanded ? 'Show less' : 'Show more');
+    });
+  });
 
 
 
   // Copy page URL on copy button click on single blog page
-  $('.blog-social-share-copy').click((e) => {
+  $('.blog-social-share-copy').click(function () {
     navigator.clipboard.writeText(decodeURI(window.location.href.toLowerCase()))
       .then(() => {
-        $(e.target).html('<i class="bi bi-check2 d-inline-block fs-5"></i>')
+        $(this).html('<i class="bi bi-check2 d-inline-block fs-5"></i>')
 
         setTimeout(() => {
-          $(e.target).html('<i class="bi bi-copy d-inline-block fs-5"></i>')
+          $(this).html('<i class="bi bi-copy d-inline-block fs-5"></i>')
         }, 4000);
       })
       .catch((err) => {
@@ -123,7 +153,6 @@ jQuery(document).ready(function ($) {
       success: function (response) {
         let res = JSON.parse(response);
 
-        console.log(res)
         if (trigger === '#recently-viewed-tab-list' ||
           trigger === '#liked-blogs-tab-list') {
           $('#liked-blogs-tab-list').html(res.liked_posts)
@@ -249,36 +278,6 @@ jQuery(document).ready(function ($) {
   })
 
 
-
-  // // Add post like dislike functionality
-  // $('.user-post-disliked').click((e) => changePostLikeStatus($(e.target).attr('data-liked'), $(e.target).attr('data-post')))
-  // $('.user-post-liked').click((e) => changePostLikeStatus($(e.target).attr('data-liked'), $(e.target).attr('data-post')));
-
-  // Retrieve the value of the 'likedPosts' cookie using native JavaScript
-  // var likedPostsCookieValue = document.cookie.replace(/(?:(?:^|.*;\s*)userLikedPosts\s*=\s*([^;]*).*$)|^.*$/, '$1');
-
-  // Parse the JSON string to get the array
-  // var likedPostsArray = likedPostsCookieValue ? JSON.parse(likedPostsCookieValue) : [];
-
-  // Now 'likedPostsArray' contains your liked posts
-  // console.log(likedPostsArray);
-
-
-  // function changePostLikeStatus(status, post) {
-  //   let postIndex = $.inArray(post, likedPostsArray);
-  //   if (postIndex === -1) {
-  //     // Post ID does not exist in the array
-  //     likedPostsArray.push(post);
-
-  //     // Calculate expiration date for one week (in seconds)
-  //     let expirationDate = new Date();
-  //     expirationDate.setTime(expirationDate.getTime() + (7 * 24 * 60 * 60 * 1000));
-
-  //     // Store likedPosts in the cookie as a JSON string
-  //     document.cookie = `userLikedPosts=${JSON.stringify(likedPostsArray)}; expires=${expirationDate.toUTCString()}; path=/`;
-  //   }
-  // }
-
   /**************** common functions for like and dislike ********************/
   function sendpostlikedislikedstatus(currentpostid, likeddisliked, decrement_flag) {
     var currentpostid = currentpostid;
@@ -403,44 +402,266 @@ jQuery(document).ready(function ($) {
 
 
   /***************show modal after 15 seconds****************/
+  var popupSession = JSON.parse(sessionStorage.getItem('popupSessionActive')) || false;
+  let isSubscriber = admin_ajax.is_subscriber;
+
   function triggerEmailPopup() {
-    $('.email-popup-wrapper').addClass('d-flex').removeClass('d-none').addClass('align-items-center')
-    $('body').addClass('overflow-hidden')
-    lazyLoadImages()
+    $('.email-popup-wrapper').addClass('d-flex').removeClass('d-none').addClass('align-items-center');
+    $('body').addClass('overflow-hidden');
+    lazyLoadImages();
+    sessionStorage.setItem('popupSessionActive', JSON.stringify(true)); // popup session is activated
+    popupSession = true;
   }
 
-  $('.email-popup-close, .email-popup-overlay').click(() => {
-    $('.email-popup-wrapper').removeClass('d-flex').addClass('d-none').removeClass('align-items-center')
-    $('body').removeClass('overflow-hidden')
-    lazyLoadImages()
-    popupClosedOnce = true;
-  })
-
-  var popupClosedOnce = false;
+  // Show popup if the user hasn't seen it and it's been 15 seconds
+  setTimeout(() => {
+    if (!popupSession && isSubscriber !== 'true') {
+      triggerEmailPopup();
+    }
+  }, parseInt(admin_ajax.email_popup_timer));
 
   $(document).scroll(function () {
-    // console.log(window.scrollY, document.body.scrollHeight, window.innerHeight)
     var scrollPosition = window.scrollY;
     var totalHeight = document.body.scrollHeight - window.innerHeight;
     var scrollPercentage = parseInt(((scrollPosition / totalHeight) * 100).toFixed(2));
 
-    if (scrollPercentage >= parseInt(admin_ajax.page_scroll_limit) && !popupClosedOnce) {
+    // Show popup if the user hasn't seen it and has scrolled 50% of the page
+    if (scrollPercentage >= parseInt(admin_ajax.page_scroll_limit) && !popupSession
+      && isSubscriber !== 'true') {
       triggerEmailPopup();
     }
   })
 
-  setTimeout(() => {
-    if (!popupClosedOnce) {
-      triggerEmailPopup()
-    }
-  }, parseInt(admin_ajax.email_popup_timer));
-
-  // Convert h1 to h2 headings in blog content
-  $('.blog-content h1').each(function () {
-    var newElement = $('<h2>');
-    newElement.html($(this).html());
-    $(this).replaceWith(newElement);
+  $('.email-popup-close, .email-popup-overlay, .email-popup-close i').click((e) => {
+    $('.email-popup-wrapper').removeClass('d-flex').addClass('d-none').removeClass('align-items-center');
+    $('body').removeClass('overflow-hidden');
+    lazyLoadImages();
   })
+
+  // Animate keypoints design in single blog page
+  if ($('body').hasClass('single-post')) {
+    $(window).scroll(() => {
+      $('.keypoints-list-wrap').each(function () {
+        var elementTop = $(this).offset().top;
+        var elementBottom = elementTop + $(this).outerHeight();
+        var viewportTop = $(window).scrollTop();
+        var viewportBottom = viewportTop + $(window).height();
+
+        if (elementBottom > viewportTop && elementTop < viewportBottom) {
+          var $lis = $(this).find('li');
+          var $lis = $(this).find('li');
+          $lis.each(function (index) {
+            var $li = $(this);
+            setTimeout(function () {
+              $li.addClass('animation-active');
+            }, index * 1000); // Delay in milliseconds (1 second)
+          });
+        } else {
+          // var $lis = $(this).find('li');
+          // var $lis = $(this).find('li');
+          // $lis.each(function (index) {
+          //   var $li = $(this);
+          //   setTimeout(function () {
+          //     $li.removeClass('animation-active');
+          //   }, index * 1000); // Delay in milliseconds (1 second)
+          // });
+        }
+      });
+    })
+  }
+
+  // Handle lead form submissions
+  $('.lead-form').submit(function (e) {
+    e.preventDefault();
+    let userEmail = $(this).find('[type="email"]').val().trim()
+    let $form = $(this)
+    let preventFormSubmission = $(this).find('.lead-form-prevent-submission').val().trim();
+    $form.find('.lead-form-response').text('Loading...').removeClass('d-none')
+
+    if (preventFormSubmission === '') {
+      // Submit the form
+      if (userEmail !== '') {
+        $.ajax({
+          type: 'POST',
+          url: admin_ajax.ajax_url,
+          data: {
+            email: userEmail,
+            action: 'automatelife_handle_form_submission',
+          },
+          success: function (response) {
+            console.log(response)
+            if (response.success) {
+              $form.find('.lead-form-response').text(response.data).removeClass('form-danger d-none')
+              // Add cookies to track that user is already subscribed
+              let expirationDate = new Date();
+              expirationDate.setFullYear(expirationDate.getFullYear() + 10); // Set expiration to 10 years from now
+
+              // Convert the expiration date to UTC string format
+              let expiresUTCString = expirationDate.toUTCString();
+
+              document.cookie = "user_is_subscribed=true; expires=" + expiresUTCString + "; path=/; ";
+
+              /** If user is at single blog page then after successfull form submission reload the page to show the
+               * full blog content
+               */
+              if ($('body').hasClass('single-post')) {
+                window.location.reload()
+              }
+            } else {
+              $form.find('.lead-form-response').text(response.data).addClass('form-danger')
+            }
+
+            setTimeout(() => {
+              $form.find('.lead-form-response').addClass('d-none')
+              $form.find('input[type="email"]').val('')
+            }, 3000);
+          },
+          error: function (XHR, error, status) {
+            alert('Something went wrong' + ' ' + error + ' ' + status)
+          }
+        })
+      }
+    } else {
+      // Prevent form submission
+      $form.find('.lead-form-response').addClass('form-danger').text('Something went wrong');
+      setTimeout(() => {
+        $form.find('.lead-form-response').addClass('d-none').text('').removeClass('form-danger')
+        $form.find('input[type="email"]').val('')
+      }, 3000);
+
+    }
+
+  })
+
+  // Send feedback sidebar trigger
+  $('.send-feedback-trigger').click(function () {
+    $(document).find('.send-feedback-wrapper').addClass('active')
+    $(document).find('.send-feedback-overlay').addClass('active')
+    $(document).find('.send-feedback-sidebar').addClass('active')
+    $('body').addClass('overflow-hidden')
+  })
+
+  $('.send-feedback-overlay, .send-feedback-close').click(function () {
+    $(this).removeClass('active')
+    $('.send-feedback-sidebar').removeClass('active')
+    setTimeout(() => {
+      $(document).find('.send-feedback-wrapper').removeClass('active')
+    }, 600);
+    $('body').removeClass('overflow-hidden')
+  })
+
+  $('.send-feedback-form').submit(function (e) {
+    e.preventDefault();
+    let feedbackResponse = $('#send-feedback-textarea').val()
+    let postName = $('#send-feedback-postname').val()
+    let honeypotField = $('#send-feedback-form-prevent-submission').val().trim()
+
+    // Show the spinner indicating the form submission
+    $('.send-feedback-spinner').removeClass('d-none')
+
+    if (honeypotField === '') {
+      // Submit the form
+      if (feedbackResponse !== '') {
+        feedbackResponse = feedbackResponse.trim();
+
+        $.ajax({
+          type: 'POST',
+          url: admin_ajax.ajax_url,
+          data: {
+            feedbackResponse: feedbackResponse,
+            postName: postName,
+            action: 'submit_user_feedback',
+          },
+          success: function (response) {
+            if (response.success) {
+              $('.feedback-response-text').addClass('border-success').removeClass('border-danger').removeClass('text-danger').addClass('text-success')
+            } else {
+              $('.feedback-response-text').removeClass('border-success').addClass('border-danger').addClass('text-danger').removeClass('text-success')
+            }
+
+            $('.feedback-response-text').removeClass('d-none')
+            $('.feedback-response-text').text(response.data)
+            $('.send-feedback-spinner').addClass('d-none')
+            $('#send-feedback-textarea').val('')
+
+            setTimeout(() => {
+              $('.feedback-response-text').addClass('d-none')
+            }, 3000);
+          },
+          error: function (XHR, status, error) {
+            alert(status)
+            $('.send-feedback-spinner').addClass('d-none')
+            $('#send-feedback-textarea').val('')
+          }
+        })
+      }
+    } else {
+      // Do not submit the form
+      $('.send-feedback-spinner').addClass('d-none')
+      $('#send-feedback-textarea').val('')
+      $('.feedback-response-text').removeClass('border-success')
+        .addClass('border-danger')
+        .addClass('text-danger')
+        .removeClass('text-success').text('Something went wrong please try again').removeClass('d-none')
+      setTimeout(() => {
+        $('.feedback-response-text').addClass('d-none')
+      }, 3000);
+    }
+
+
+  })
+
+
+  // Add active class to TOC list element that is currently in viewport
+  $(window).scroll(function () {
+    let scrollTop = $(document).scrollTop();
+    let windowHeight = $(window).height();
+    let halfViewportHeight = windowHeight / 2;
+
+    $('.table-of-content-column .toc li a').removeClass('active');
+
+    $('.blog-content h2, .blog-content h3').each(function (index, heading) {
+      let headingId = $(heading).attr('id');
+      if (!headingId) {
+        return; // Move to the next heading
+      }
+
+      // Get the position of the heading relative to the document
+      let headingOffsetTop = $(heading).offset().top;
+
+      // Check if the heading is within the first half of the viewport
+      if (headingOffsetTop >= scrollTop && headingOffsetTop <= scrollTop + halfViewportHeight) {
+        // Add active class to the corresponding TOC link
+        $('.table-of-content-column .toc li a[href="#' + headingId + '"]').addClass('active');
+        return false; // Break the loop once the first matching heading is found
+      }
+    });
+  });
+
+
+  // Make smart products in stock a slider in mobile
+  function initSlickSlider() {
+    $('.smart-products-slick-mobile').slick({
+      // Slick slider options
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      dots: true,
+      arrows: false,
+    });
+  }
+
+  function checkWindowWidth() {
+    var windowWidth = $(window).width();
+    if (windowWidth <= 768) { // Adjust the breakpoint as needed
+      initSlickSlider();
+    }else {
+      $('.smart-products-slick-mobile').slick('unslick');
+    }
+  }
+
+  checkWindowWidth();
+  $(window).resize(checkWindowWidth);
+
 
 });
 

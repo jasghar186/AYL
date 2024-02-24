@@ -110,3 +110,61 @@
         'News Article' => 'News Article',
         'Blog Posting' => 'Blog Posting',
     );
+    $GLOBALS['authorized_users'] = array(
+        'Article' => 'Article',
+        'News Article' => 'News Article',
+        'Blog Posting' => 'Blog Posting',
+    );
+
+    // Get admin and editors and merge them
+    $admin_users = get_users(
+        array(
+            'role' => 'administrator',
+        )
+    );
+    $editor_users = get_users(
+        array(
+            'role' => 'subscriber',
+        )
+    );
+
+    $merged_users = [];
+    $admins = [];
+    $editors = [];
+
+    foreach($admin_users as $index => $admin) {
+        $admin_name = $admin->data->user_login;
+        $admins[$admin_name] = $admin_name;
+    }
+    foreach($editor_users as $index => $editor) {
+        $editor_name = $editor->data->user_login;
+        $editors[$editor_name] = $editor_name;
+    }
+
+    $merged_users = array_merge($admins, $editors);
+
+    $GLOBALS['authorized_users'] = $merged_users;
+
+    // Get the categories that are not blanked and not uncategorized
+    $categories = get_categories(array(
+        'exclude' => get_cat_ID('uncategorized'), // Exclude the "uncategorized" category
+        'parent' => 0, // Include only top-level categories
+        'hide_empty' => false,
+    ));
+    
+    $GLOBALS['exclusive_content_categories'] = array();
+    foreach ($categories as $category) {
+        // Include child categories
+        $child_args = array(
+            'parent' => $category->term_id,
+            'hide_empty' => false,
+        );
+        $child_categories = get_categories($child_args);
+        
+        $GLOBALS['exclusive_content_categories'][$category->slug] = $category->slug;
+    
+        foreach ($child_categories as $child_category) {
+            $GLOBALS['exclusive_content_categories'][$child_category->slug] = $child_category->slug;
+        }
+    }
+    

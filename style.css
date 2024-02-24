@@ -1,8 +1,8 @@
 /*!
 Theme Name: Automate Life
-Theme URI: https://hirejunaid.com/
-Author: Junaid Asghar
-Author URI: https://hirejunaid.com/
+Theme URI: https://automatelife.net/
+Author: Marty Spargo
+Author URI: https://automatelife.net/
 Description: Smart Homes Made Easy From Smart TVs to Security Cameras and everything in between, we have got you covered with easy to follow guides and step by step information. From ...
 Version: 1.0.0
 Tested up to: 5.4
@@ -1022,4 +1022,7 @@ textarea {
 .custom-modal-inner-content{
 	z-index: 999;
 	font-family: Roboto;
+}
+.sr-only {
+	display: none;
 }
