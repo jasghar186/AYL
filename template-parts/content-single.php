@@ -23,20 +23,11 @@ if(isset($all_type_posts['disliked_posts'])){
 
 <article id="post-<?php the_ID(); ?>" <?php post_class('container-fluid mb-0 mb-lg-4'); ?>>
 
-	<div class="row position-relative">
-		<div class="col-3 position-sticky top-0 table-of-content-column d-none d-lg-block pt-5">
-			<div class="rounded-3 shadow p-2 position-sticky" style="top:2rem;">
-				<h3 class="text-capitalize fw-bold">
-					Table of Contents
-				</h3>
-				<ul class="toc p-0 m-0"></ul>
-			</div>
-		</div>
-		
-		<div class="col-12 col-lg-6 shadow-sm pb-4 flex-grow-1">
+	<div class="row position-relative mb-3">
+		<div class="col-3 table-of-content-column"></div>
+		<div class="col-12 col-lg-6 single-blog-main-content shadow-none flex-grow-1">
 			<div class="d-flex align-items-center justify-content-between">
 				<?php get_template_part('template-parts/breadcrumbs');  ?>
-
 				<!-- Post CTA -->
 				<div class="post-cta d-none d-lg-flex align-items-center justify-content-end gap-3">
 					<div class="post-like-dislike d-flex align-items-center justify-content-end">
@@ -49,12 +40,27 @@ if(isset($all_type_posts['disliked_posts'])){
 					<button class="send-feedback-trigger font-sm rounded-1 border p-1 send-feedback-trigger">Send Feedback</button>
 				</div>
 			</div>
+		</div>
+		<div class="col-3 blog-sidebar-column d-none d-lg-block"></div>
+	</div>
+
+	<div class="row position-relative">
+		<div class="col-3 position-sticky top-0 table-of-content-column d-none d-lg-block">
+			<div class="rounded-3 shadow p-2 position-sticky" style="top:2rem;">
+				<h3 class="text-capitalize fw-bold">
+					Table of Contents
+				</h3>
+				<ul class="toc p-0 m-0"></ul>
+			</div>
+		</div>
+		
+		<div class="col-12 col-lg-6 single-blog-main-content pb-4 flex-grow-1">
 
 			<!-- Post Header -->
 			<header class="entry-header single-blog-header mb-2 mb-lg-4">
 				<?php
 					if( is_singular() ) {
-						the_title( '<h1 class="entry-title my-2 my-lg-5">', '</h1>' );
+						the_title( '<h1 class="entry-title my-2 my-lg-4">', '</h1>' );
 					}else {
 						the_title( '<h2 class="entry-title"><a href="' . esc_url( get_permalink() ) . '" rel="bookmark">', '</a></h2>' );
 					}
@@ -85,7 +91,7 @@ if(isset($all_type_posts['disliked_posts'])){
 							}
 						?>
 
-						<div class="d-flex align-items-center justify-content-start my-2 my-lg-4 gap-2 gap-lg-3 posted-date">
+						<div class="d-flex align-items-center justify-content-start my-2 my-lg-3 gap-2 gap-lg-3 posted-date">
 							<div class="d-flex align-items-center">
 								<i class="bi bi-clock fs-3" style="color:green;"></i>
 							</div>
@@ -272,7 +278,7 @@ if(isset($all_type_posts['disliked_posts'])){
 			<a href="https://news.google.com/publications/CAAqBwgKMOLgnwww2IewBA?hl=en-MY&gl=MY&ceid=MY:en"
 			target="_blank" class="d-flex align-items-center
 			justify-content-around google-news-feed text-decoration-none px-2 mt-30">
-				<span class="text-dark font-md">Add AYL to your Google news feed.</span>
+				<span class="text-dark font-md">Add Automate Your Life to your Google news feed.</span>
 				<img data-src="<?php echo site_url(); ?>/wp-content/themes/automate-life/assets/images/google-news-feed.webp"
 				alt="Add AYL to your Google news feed" title="Add AYL to your Google news feed"
 				loading="lazy" width="120" height="70" class="ayl-google-news-image">

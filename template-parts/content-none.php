@@ -9,9 +9,9 @@
 
 ?>
 
-<section class="no-results not-found">
+<section class="no-results not-found py-5">
 	<header class="page-header">
-		<h1 class="page-title"><?php esc_html_e( 'Nothing Found', 'automate-life' ); ?></h1>
+		<h1 class="page-title text-center fw-bold fs-1 mb-4"><?php esc_html_e( 'Nothing Found', 'automate-life' ); ?></h1>
 	</header><!-- .page-header -->
 
 	<div class="page-content">
@@ -34,9 +34,15 @@
 		elseif ( is_search() ) :
 			?>
 
-			<p><?php esc_html_e( 'Sorry, but nothing matched your search terms. Please try again with some different keywords.', 'automate-life' ); ?></p>
+			<p class="text-center fs-5 mb-4"><?php esc_html_e( 'Sorry, but nothing matched your search terms. Please try again with some different keywords.', 'automate-life' ); ?></p>
 			<?php
+			echo '<div class="container mt-4">';
+			echo '<div class="header-search-form position-relative">';
 			get_search_form();
+			echo '<i class="bi bi-search position-absolute end-0 top-50 translate-middle-y rounded-circle
+			d-flex align-items-center justify-content-center fs-4 text-white bg-primary cursor-pointer"></i>';
+			echo '</div>';
+			echo '</div>';
 
 		else :
 

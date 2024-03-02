@@ -14,9 +14,8 @@ get_header();
 
 		<?php if ( have_posts() ) : ?>
 
-			<header class="bg-primary pt-5 pb-5 page-header">
-				<h1 class="page-title blog-header-title m-0 text-white fw-bold text-center text-capitalize"><?php single_term_title(); ?></h1>
-				<div class="pb-5 mb-5"></div>
+			<header class="page-header bg-primary blog-title-header">
+				<h1 class="page-title blog-header-title m-0 pt-5 text-white fw-bold text-center text-uppercase"><?php single_term_title(); ?></h1>
 			</header> <!-- .page-header -->
 
 			<?php

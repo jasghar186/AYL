@@ -387,7 +387,7 @@
 .btn {
     padding: 7px 55px;
     border-radius: 50px;
-    color: white;
+    color: white !important;
     text-transform: capitalize;
     font-family: inherit;
     text-align: center;
@@ -506,14 +506,15 @@ header.site-header {
 
 // Dropdown styling
 .main-navigation ul>li {
-
+    padding-bottom: 1rem;
+    
     >a {
         position: relative;
     }
 
     &.menu-item-has-children>a::after {
         content: '';
-        background-image: url('/hirejunaid/wp-content/themes/automate-life/assets/images/chevron-down.svg');
+        background-image: url('/wp-content/themes/automate-life/assets/images/chevron-down.svg');
         background-position: center;
         width: 1rem;
         height: 1rem;
@@ -809,7 +810,7 @@ div a.child-category-item {
         color: #1677F0;
         text-decoration: none;
         display: inline-block;
-        margin-left: .3rem;
+        margin-left: 0;
         font-size: inherit;
     }
 }
@@ -828,8 +829,13 @@ div a.child-category-item {
     text-decoration: none;
 }
 
+.single-blog-main-content {
+    box-shadow: 0px 3px 3px rgba(0,0,0,0.16 );
+}
+
 // Adjust blog page content as needed
-.blog-content {
+.blog-content,
+.page.page-template-default {
     .wp-block-heading {
         margin-bottom: 1rem;
         line-height: 2rem;
@@ -940,6 +946,9 @@ div a.child-category-item {
 
 .blog-post-card {
     filter: drop-shadow(0px 3px 3px rgba(0, 0, 0, 0.16));
+    img {
+        border-radius: 5px 5px 0 0;
+    }
 }
 
 .blog-title-header {
@@ -1122,6 +1131,10 @@ div a.child-category-item {
     min-width: 95%;
 }
 
+.email-popup-overlay {
+    background-color: #ecebebcc;
+}
+
 header .header-search-form form {
     margin-bottom: 0 !important;
     transition: all 1s;
@@ -1137,14 +1150,14 @@ header .header-search-form form {
 }
 
 .email-popup-heading {
-    font-size: 24px;
+    font-size: 60%;
 
     @include md {
-        font-size: 35px;
+        font-size: 80%;
     }
 
     @include lg {
-        font-size: 45px;
+        font-size: 90%;
     }
 }
 
@@ -1183,19 +1196,32 @@ header .header-search-form form {
 }
 
 .lead-form-image {
-    height: 85vh;
+    height: 450px;
+    max-height: 600px;
 
     @include xxl {
-        height: 95%;
+        height: 550px;
+        max-height: 750px;
     }
+}
+.email-lead-popup-content {
+    font-size: 200%;
+
+    input[type="email"] {
+        font-size: 1.1rem;
+    }
+}
+.email-popup-close {
+    width: 30px;
+    height: 30px;
 }
 
 .popup-subheading {
-    font-size: 1.3rem;
+    font-size: 1rem;
     font-weight: bold;
 
     @include lg {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         font-weight: 400;
     }
 }
@@ -1370,4 +1396,10 @@ header .header-search-form form {
             border: 1px solid $userPrimaryColor;
         }
     }
+}
+
+
+// Hide Raptive ads plugin banner in footer
+.adthrive-comscore.adthrive-footer-message {
+    display: none;
 }

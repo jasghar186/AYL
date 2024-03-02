@@ -35,7 +35,7 @@ get_header();
 
 ?>
 
-	<main id="primary" class="site-main pt-3 mt-lg-5">
+	<main id="primary" class="site-main pt-4">
 
 		<?php
 		while ( have_posts() ) :

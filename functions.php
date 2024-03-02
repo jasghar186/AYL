@@ -8,11 +8,12 @@
  */
 
 if ( ! defined( '_S_VERSION' ) ) {
-	// Replace the version number of the theme on each release.
+	/** Theme Version */
 	define( '_S_VERSION', '1.0.0' );
 }
 
 if(!defined('company_socials')) {
+	/** Social profile variables */
 	$urls = array(
 		'twitter_option', 'youtube_option', 'pinterest_option', 'instagram_option',
 		'facebook_option', 'facebook_group_option',
@@ -22,6 +23,7 @@ if(!defined('company_socials')) {
 }
 
 if(!defined('SITE_LAYOUT_SPACE')) {
+	/** Sitewide section space layout */
 	$spacing = strtolower(get_option('layout_space_option')) === 'comfortable' ? 'my-5' : 'my-4';
 	define('SITE_LAYOUT_SPACE', $spacing);
 }
@@ -117,6 +119,56 @@ function automate_life_setup() {
 		)
 	);
 
+	$GLOBALS['content_width'] = apply_filters( 'automate_life_content_width', 640 );
+	
+	if ( ! wp_next_scheduled( 'automatelife_update_posts_title_year' ) ) {
+        wp_schedule_event( time(), 'monthly', 'automatelife_update_posts_title_year' );
+    }
+
+}
+add_action( 'after_setup_theme', 'automate_life_setup' );
+add_action( 'automatelife_update_posts_title_year', 'automatelife_update_post_title' );
+
+
+/**
+ * On theme activation
+ */
+function automate_life_theme_activation_hook() {
+    /** Create and publish a home page and set the website homepage to this */
+	$existing_homepage = get_page_by_title('Automate Your Life - Live Smart');
+	$existing_blogpage = get_page_by_title('Blog');
+
+	if(!$existing_homepage) {
+		$home_page_args = array(
+			'post_title'    => 'Automate Your Life - Live Smart',
+			'post_status'   => 'publish',
+			'post_type'     => 'page',
+			'post_content'  => 'From Smart TVs to Security Cameras and everything in between, we&rsquo;ve got you covered with easy to follow guides and step by step information.',
+			'post_excerpt'	=> 'From Smart TVs to Security Cameras and everything in between, we&rsquo;ve got you covered with easy to follow guides and step by step information.',
+		);
+		// Insert the page into the database
+		$home_page_id = wp_insert_post($home_page_args);
+		// Set the page as the homepage
+		if ($home_page_id !== 0) {
+			update_option('page_on_front', $home_page_id);
+			update_option('show_on_front', 'page');
+		}
+	}
+
+	if(!$existing_blogpage) {
+		$blog_page_args = array(
+			'post_title'	=> 'Blog',
+			'post_status'	=> 'publish',
+			'post_type'		=> 'page',
+			'post_content'	=> 'From Smart TVs to Security Cameras and everything in between, we have got you covered with easy to follow guides and step by step information.',
+			'post_excerpt'	=> 'From Smart TVs to Security Cameras and everything in between, we have got you covered with easy to follow guides and step by step information.',
+		);
+		$blog_page_id = wp_insert_post($blog_page_args);
+		if($blog_page_id !== 0) {
+			update_option('page_for_posts', $blog_page_id);
+		}
+	}
+
 	if(get_option('automate_life_theme_activated') !== '1') {
 		$shopify_products_arr = array(
 			array(
@@ -164,7 +216,6 @@ function automate_life_setup() {
 			'h1_color_option' => '#111111',
 			'apply_h1_color_to_all_headings_option' => 0,
 			'post_meta_display_date_option' => 'both',
-			
 			'change_logo_height_option' => '75px',
 			'display_featured_images_option' => 0,
 			'hide_featured_images_from_small_screens_option' => 0,
@@ -200,54 +251,8 @@ function automate_life_setup() {
         update_option('automate_life_theme_activated', '1');
 	}
 
-	// Check if the WP Mail SMTP function exists
-    if (!function_exists('wp_mail_smtp')) {
-        // WP Mail SMTP function does not exist, so the plugin might not be active
-        $message = __('Please activate the WP Mail SMTP plugin to ensure proper email functionality.', 'your-text-domain');
-        printf('<div class="notice notice-error"><p>%s</p></div>', esc_html($message));
-    }
-
-	
-}
-add_action( 'after_setup_theme', 'automate_life_setup' );
-
-/**
- * On theme activation
- */
-function automate_life_theme_activation_hook() {
-    /** Create and publish a home page and set the website homepage to this */
-	$existing_homepage = get_page_by_title('Home');
-	if(!$existing_homepage) {
-		$home_page_args = array(
-			'post_title'    => 'Home',
-			'post_status'   => 'publish',
-			'post_type'     => 'page',
-			'post_content'  => 'Your description here',
-			'post_excerpt'	=> 'Post excerpt here',
-		);
-		// Insert the page into the database
-		$home_page_id = wp_insert_post($home_page_args);
-		// Set the page as the homepage
-		if ($home_page_id !== 0) {
-			update_option('page_on_front', $home_page_id);
-			update_option('show_on_front', 'page');
-		}
-	}
 }
 add_action( 'after_switch_theme', 'automate_life_theme_activation_hook' );
-
-
-/**
- * Set the content width in pixels, based on the theme's design and stylesheet.
- *
- * Priority 0 to make it available to lower priority callbacks.
- *
- * @global int $content_width
- */
-function automate_life_content_width() {
-	$GLOBALS['content_width'] = apply_filters( 'automate_life_content_width', 640 );
-}
-add_action( 'after_setup_theme', 'automate_life_content_width', 0 );
 
 /**
  * Register widget area.
@@ -273,12 +278,13 @@ add_action( 'widgets_init', 'automate_life_widgets_init' );
  * Enqueue scripts and styles.
  */
 function automate_life_scripts() {
-	wp_enqueue_style( 'automate-life-style', get_stylesheet_uri(), array(), _S_VERSION );
+	// wp_enqueue_style( 'automate-life-style', get_stylesheet_uri(), array(), _S_VERSION );
+	wp_enqueue_style( 'automate-life-style', get_template_directory_uri() . '/style.min.css', array(), _S_VERSION );
 	wp_style_add_data( 'automate-life-style', 'rtl', 'replace' );
 	wp_enqueue_style( 'automate-life-bootstrap-style', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css', array(), '5.3.2', 'all' );
 	wp_enqueue_style( 'automate-life-bootstrap-icons', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css', array(), '1.11.2', 'all' );
 	wp_enqueue_style( 'automate-life-slick-slider-style', '//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css', array(), '1.8.1', 'all' );
-	wp_enqueue_style( 'automate-life-template-style', get_template_directory_uri() . '/assets/css/style.css?unique='.time(), array(), _S_VERSION, 'all' );
+	wp_enqueue_style( 'automate-life-template-style', get_template_directory_uri() . '/assets/css/style.css', array(), _S_VERSION, 'all' );
 	
 	$styleFilePath = get_template_directory() . '/global-options-styles.css';
 	if (file_exists($styleFilePath)) {
@@ -342,11 +348,6 @@ function automate_life_admin_scripts() {
 
 }
 add_action( 'admin_enqueue_scripts', 'automate_life_admin_scripts' );
-
-/**
- * Implement the Custom Header feature.
- */
-require get_template_directory() . '/inc/custom-header.php';
 
 /**
  * Custom template tags for this theme.
@@ -695,7 +696,7 @@ function remove_product_image_callback() {
             '<div class="d-flex align-items-center justify-content-center">'.
             '<a type="button"
 			href="'.get_the_permalink().'"
-			class="py-2 px-5 text-decoration-none bg-primary text-capitalize text-center rounded-circle-px">Read More</a>'.
+			class="bg-primary btn">Read More</a>'.
             '</div>'.
             '</div>'.
             '</div>'. 
@@ -741,7 +742,7 @@ function automate_life_recent_and_liked_posts_callback() {
 	$recent_blogs_array = array(0);
 	$liked_post_array = array(
 		'post_type' => 'post',
-		'posts_per_page' => -1,
+		'posts_per_page' => 3,
 		'post__in' => array(0),
 	);
 
@@ -758,7 +759,7 @@ function automate_life_recent_and_liked_posts_callback() {
 		// var_dump($liked_ids);
 		$liked_post_array = array(
 			'post_type' => 'post',
-			'posts_per_page' => -1,
+			'posts_per_page' => 3,
 			'post__in' => $liked_ids,
 		);
 	}
@@ -970,19 +971,20 @@ add_action('wp_ajax_nopriv_post_liked_disliked', 'savepostlikeddislikedstatus');
 function automate_life_email_lead_popup() {
 	$popup = ob_start(); ?>
 	<div class="email-popup-wrapper position-fixed top-0 start-0 vw-100 vh-100 d-none" style="z-index: 10000;">
-		<div class="email-popup-overlay position-absolute top-0 start-0 bg-secondary z-1 w-100 h-100"></div>
-		<div class="container d-flex align-items-center h-auto position-relative z-3">
-			<div class="bg-white w-100 flex-grow-1 lead-form-image">
+		<div class="email-popup-overlay position-absolute top-0 start-0 z-1 w-100 h-100"></div>
+		<div class="container d-flex align-items-center lead-form-image position-relative z-3">
+			<div class="bg-white w-100 flex-grow-1 h-100">
 
 				<button type="button" data-bs-dismiss="modal"
 				aria-label="Close"
-				class="btn btn-close position-absolute cursor-pointer
-				email-popup-close bg-transparent p-0 text-dark font-xl z-3 opacity-100" style="top:1rem;right:1.5rem;">
+				class="btn position-absolute cursor-pointer
+				email-popup-close bg-primary p-0 font-xxl z-3 opacity-100
+				d-flex align-items-center justify-content-center" style="top:1rem;right:1.5rem;">
 					<i class="bi bi-x-lg"></i>
 				</button>
 
 			<div class="d-flex flex-wrap email-popup-content-container h-100">
-				<div class="email-popup-content-image-wrapper">
+				<div class="email-popup-content-image-wrapper d-none d-xl-block">
 					<img class="img-fluid object-fit-cover w-100 h-100"
 					data-src="<?php echo get_template_directory_uri() ?>/assets/images/left-side-popup-img.jpeg"
 					alt="Subscribe to our monthly newsletter"
@@ -992,7 +994,7 @@ function automate_life_email_lead_popup() {
 					height="800">
 				</div>
 
-				<div class="position-relative p-2 p-lg-4">
+				<div class="position-relative p-2 p-lg-4 email-lead-popup-content">
 					<!-- Overlay image -->
 					<img src="<?php echo site_url(); ?>/wp-content/themes/automate-life/assets/images/right-sidebg-img.jpeg"
 					alt="" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover opacity-50 z-0 pe-none user-select-none">
@@ -1003,8 +1005,8 @@ function automate_life_email_lead_popup() {
 							<?php the_custom_logo(); ?>
 						</div>
 						<h3 class="popup-subheading mb-0 text-center">In our monthly newsletter you'll receive</h3>
-						<h2 class="email-popup-heading fw-bold mb-1 pb-10 lh-sm text-center">START LEARNING ABOUT <br> SMART HOMES</h2>
-						<ul class="list-unstyled text-center ms-0 mb-2 mb-lg-3 p-0">
+						<h2 class="email-popup-heading fw-bold mb-0 pb-10 lh-sm text-center">START LEARNING ABOUT <br> SMART HOMES</h2>
+						<ul class="list-unstyled text-center ms-0 mb-2 mb-lg-2 p-0">
 							<li class="text-capitalize font-md fw-bold">News & Announcements</li>
 							<li class="text-capitalize font-md fw-bold">New Articles</li>
 							<li class="text-capitalize font-md fw-bold">New Releases</li>
@@ -1030,10 +1032,10 @@ add_action('wp_footer', 'automate_life_email_lead_popup');
 function automatelife_security_headers() {
     header("X-Frame-Options: DENY");
 	header("Content-Security-Policy: default-src * 'unsafe-inline'; img-src *; media-src *");
+	header("X-Content-Type-Options: nosniff");
+	header("X-Xss-Protection: 1; mode=block");
 }
 add_action('send_headers', 'automatelife_security_headers');
-
-
 
 /** Handle Form Submission */
 add_action('wp_ajax_automatelife_handle_form_submission', 'automatelife_handle_form_submission_callback');
@@ -1055,7 +1057,7 @@ function automatelife_handle_form_submission_callback() {
     $handle_submission = wp_mail($admin_email, $subject, $message);
 
     if ($handle_submission) {
-        wp_send_json_success('Form submitted');
+        wp_send_json_success('Thankyou for subscribing.');
     } else {
         wp_send_json_error('Something went wrong, please try again');
     }
@@ -1070,7 +1072,8 @@ function automate_life_send_feedback_sidebar() {
 		<div class="send-feedback-wrapper position-fixed top-0 start-0 h-100 w-100" style="z-index:10000;">
 			<div class="send-feedback-overlay position-absolute top-0 start-0 z-2 w-100 h-100"></div>
 			<article class="send-feedback-sidebar position-absolute z-3 overflow-y-scroll bg-white top-50 translate-middle-y">
-				<div class="send-feedback-header d-flex align-items-center justify-content-between p-3 p-lg-4">
+				<div class="send-feedback-header d-flex align-items-center justify-content-between p-3 p-lg-4
+				position-sticky top-0 bg-white z-3">
 					<h3 class="text-capitalize m-0 fs-5 fs-lg-1 text-dark">Send feedback to automate your life</h3>
 					<span class="send-feedback-close fs-4 fw-bold cursor-pointer">
 						<i class="bi bi-x-lg"></i>
@@ -1097,11 +1100,8 @@ function automate_life_send_feedback_sidebar() {
 								name="form-prevent-submission" id="send-feedback-form-prevent-submission">
 							</label>
 
-							<p class="my-3 my-lg-4 font-20 text-dark">Lorem ipsum dolor sit amet consectetur adipisicing elit. Porro, ipsam.</p>
-							<p class="font-20 text-dark lh-base mb-4 mb-lg-5 pb-3 pb-lg-4">Lorem ipsum dolor sit amet consectetur adipisicing elit.
-								Libero minima ipsum tempore neque dolor quis esse animi. Tempora quam,
-								quibusdam, quaerat molestiae incidunt delectus minus totam,
-								reprehenderit eveniet saepe excepturi?</p>
+							<p class="my-3 my-lg-4 font-20 text-dark">We appreciate you taking the time to share your feedback about this page with us. </p>
+							<p class="font-20 text-dark lh-base mb-4 mb-lg-5 pb-3 pb-lg-4">Whether it's praise for something good, or ideas to improve something that isn't quite right, we're excited to hear from you.</p>
 						</div>
 						
 						<div class="send-feedback-footer py-4 border-top ms-auto px-30 d-flex align-items-center justify-content-end gap-4">
@@ -1152,4 +1152,97 @@ function submit_user_feedback_callback() {
 	}
 
 	wp_die();
+}
+
+
+/** Create a cron job to update the year and month in posts title */
+function automatelife_update_post_title() {
+	$posts = get_posts(
+		array(
+			'post_type' => 'post',
+			'posts_per_page' => -1
+		)
+	);
+
+	if(count($posts) > 0) {
+        $current_year = date('Y');
+		$current_month = date('F');
+		$months_arr = array(
+			'January',
+			'February',
+			'March',
+			'April',
+			'May',
+			'June',
+			'July',
+			'August',
+			'September',
+			'October',
+			'November',
+			'December'
+		);
+		
+		/** Make a range of the years from current year - 1 year till - 10 years */
+        $previous_years = range($current_year - 10, $current_year - 1);
+		$updated_posts = [];
+
+        foreach($posts as $post) {
+			$post_id =  $post->ID;
+			$post_title = $post->post_title;
+            $post_title_arr = explode(' ', $post_title); // Convert post title into array
+            $matching_years = preg_grep('/\b(?:' . implode('|', $previous_years) . ')\b/', $post_title_arr);
+			
+			foreach ($post_title_arr as $key => $title) {
+				if (in_array($title, $months_arr) && $title !== $current_month) {
+					/** Month exists but is not the current month */
+					$post_title = str_replace($title, $current_month, $post_title);
+
+					$updated_posts[] = array(
+						'post_id'    => $post_id,
+						'post_title' => implode(' ', $post_title_arr),
+					);
+
+					/** Update Post Title */
+					wp_update_post(array(
+						'ID'         => $post_id,
+						'post_title' => $post_title,
+					));
+				}
+			}
+
+			if(!empty($matching_years)) {
+				foreach ($matching_years as $year) {
+					$post_title = str_replace($year, $current_year, $post_title);
+					$updated_posts[] = array(
+						'post_id'    => $post_id,
+						'post_title' => implode(' ', $post_title_arr),
+					);
+					wp_update_post(array(
+						'ID'         => $post_id,
+						'post_title' => $post_title,
+					));
+				}
+			}		
+        }
+
+		/** If a post is changed then email to admin with the updated posts */
+		if (!empty($updated_posts)) {
+            $updated_posts_message = "Below are the posts titles with IDs whose years are changed in this month cycle:\n";
+
+            foreach ($updated_posts as $updated_post) {
+                $updated_posts_message .= "ID: {$updated_post['post_id']}, Title: {$updated_post['post_title']}\n";
+            }
+
+			$file_path = get_template_directory() . '/updated_posts_message.txt'; // Define the file path
+
+			// Write the content to the file
+			file_put_contents($file_path, $updated_posts_message);
+
+            $updated_posts_mail = wp_mail(get_option('admin_email'), 'Posts years are updated', $updated_posts_message);
+
+            if (!$updated_posts_mail) {
+                error_log('Something went wrong, please check your SMTP configuration');
+            }
+        }
+    }
 }

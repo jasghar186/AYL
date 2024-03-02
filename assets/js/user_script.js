@@ -1,6 +1,40 @@
 jQuery(document).ready(function ($) {
 
 
+  // Add classes to body element based on user source
+  /** Check the source of user */
+  let user_source = sessionStorage.getItem('user_referrer_domain');
+  let website_hostname = window.location.hostname;
+  let url_obj = window.location;
+  let referrer = document.referrer;
+
+  if (user_source === null) {
+    if (referrer && referrer !== '') {
+      let url_obj = new URL(referrer);
+      user_source = url_obj.hostname.toLowerCase();
+    } else {
+      user_source = 'direct'; // Set a default value for direct traffic
+    }
+    sessionStorage.setItem('user_referrer_domain', user_source);
+  }
+
+  if (user_source !== website_hostname) {
+    if (user_source === 'google.com' || user_source === 'google.co.uk') {
+      $('body').addClass('traffic_source_google');
+    } else if (user_source === 'raterhub.com') {
+      $('body').addClass('traffic_source_google');
+    } else if (user_source === 'news.google.com') {
+      $('body').addClass('traffic_source_google');
+    } else if (user_source === 'discover.google.com') {
+      $('body').addClass('traffic_source_google');
+    } else {
+      $('body').addClass('from_' + user_source.replace(/\./g, '_')); // Adjust class naming
+    }
+
+  } else {
+    $('body').addClass('ayl_inbuilt_traffic');
+  }
+
   // Animate header search form width
   $('header .animate-search-form').click(function () {
     var formInput = $('header form input[type="search"]');
@@ -432,6 +466,7 @@ jQuery(document).ready(function ($) {
     }
   })
 
+
   $('.email-popup-close, .email-popup-overlay, .email-popup-close i').click((e) => {
     $('.email-popup-wrapper').removeClass('d-flex').addClass('d-none').removeClass('align-items-center');
     $('body').removeClass('overflow-hidden');
@@ -476,11 +511,13 @@ jQuery(document).ready(function ($) {
     let userEmail = $(this).find('[type="email"]').val().trim()
     let $form = $(this)
     let preventFormSubmission = $(this).find('.lead-form-prevent-submission').val().trim();
-    $form.find('.lead-form-response').text('Loading...').removeClass('d-none')
+
+    $form.find('input[type="submit"]').val('Loading...')
 
     if (preventFormSubmission === '') {
       // Submit the form
       if (userEmail !== '') {
+        $form.find('input[type="email"]').removeAttr('disabled', true)
         $.ajax({
           type: 'POST',
           url: admin_ajax.ajax_url,
@@ -490,9 +527,17 @@ jQuery(document).ready(function ($) {
           },
           success: function (response) {
             console.log(response)
+            let successResponse = `<div class="lead-form-success-response alert alert-success m-0 position-absolute w-100 top-0 start-0 h-100 d-flex align-items-center justify-content-center  ">
+            <p class="m-0 font-20">${response.data}</p>
+            </div>`;
+            let errorResponse = `<div class="lead-form-danger-response alert alert-danger m-0 position-absolute w-100 top-0 start-0 h-100 d-flex align-items-center justify-content-center  ">
+            <p class="m-0 font-20">${response.data}</p>
+            </div>`;
+            
             if (response.success) {
-              $form.find('.lead-form-response').text(response.data).removeClass('form-danger d-none')
-              // Add cookies to track that user is already subscribed
+              $form.append(successResponse)
+              $form.find('input[type="submit"]').val('subscribe')
+              // Add cookies to track that user is subscribed
               let expirationDate = new Date();
               expirationDate.setFullYear(expirationDate.getFullYear() + 10); // Set expiration to 10 years from now
 
@@ -508,27 +553,22 @@ jQuery(document).ready(function ($) {
                 window.location.reload()
               }
             } else {
-              $form.find('.lead-form-response').text(response.data).addClass('form-danger')
-            }
+              $form.append(errorResponse)
+              $form.find('input[type="submit"]').val('subscribe')
 
-            setTimeout(() => {
-              $form.find('.lead-form-response').addClass('d-none')
-              $form.find('input[type="email"]').val('')
-            }, 3000);
+              setTimeout(() => {
+                $form.find('.lead-form-danger-response').remove()
+              }, 4000);              
+            }
           },
           error: function (XHR, error, status) {
             alert('Something went wrong' + ' ' + error + ' ' + status)
+            $form.find('input[type="submit"]').val('subscribe')
           }
         })
       }
     } else {
-      // Prevent form submission
-      $form.find('.lead-form-response').addClass('form-danger').text('Something went wrong');
-      setTimeout(() => {
-        $form.find('.lead-form-response').addClass('d-none').text('').removeClass('form-danger')
-        $form.find('input[type="email"]').val('')
-      }, 3000);
-
+      $form.find('input[type="email"]').attr('disabled', true)
     }
 
   })
@@ -555,6 +595,7 @@ jQuery(document).ready(function ($) {
     let feedbackResponse = $('#send-feedback-textarea').val()
     let postName = $('#send-feedback-postname').val()
     let honeypotField = $('#send-feedback-form-prevent-submission').val().trim()
+    let $form = $(this)
 
     // Show the spinner indicating the form submission
     $('.send-feedback-spinner').removeClass('d-none')
@@ -562,6 +603,7 @@ jQuery(document).ready(function ($) {
     if (honeypotField === '') {
       // Submit the form
       if (feedbackResponse !== '') {
+        $form.find('input[type="email"]').removeAttr('disabled', true)
         feedbackResponse = feedbackResponse.trim();
 
         $.ajax({
@@ -573,6 +615,7 @@ jQuery(document).ready(function ($) {
             action: 'submit_user_feedback',
           },
           success: function (response) {
+
             if (response.success) {
               $('.feedback-response-text').addClass('border-success').removeClass('border-danger').removeClass('text-danger').addClass('text-success')
             } else {
@@ -583,10 +626,6 @@ jQuery(document).ready(function ($) {
             $('.feedback-response-text').text(response.data)
             $('.send-feedback-spinner').addClass('d-none')
             $('#send-feedback-textarea').val('')
-
-            setTimeout(() => {
-              $('.feedback-response-text').addClass('d-none')
-            }, 3000);
           },
           error: function (XHR, status, error) {
             alert(status)
@@ -597,15 +636,14 @@ jQuery(document).ready(function ($) {
       }
     } else {
       // Do not submit the form
+      $form.find('input[type="email"]').attr('disabled', true)
       $('.send-feedback-spinner').addClass('d-none')
       $('#send-feedback-textarea').val('')
       $('.feedback-response-text').removeClass('border-success')
         .addClass('border-danger')
         .addClass('text-danger')
-        .removeClass('text-success').text('Something went wrong please try again').removeClass('d-none')
-      setTimeout(() => {
-        $('.feedback-response-text').addClass('d-none')
-      }, 3000);
+        .addClass('d-none')
+        .removeClass('text-success').text('Something went wrong please try again')
     }
 
 
@@ -654,7 +692,7 @@ jQuery(document).ready(function ($) {
     var windowWidth = $(window).width();
     if (windowWidth <= 768) { // Adjust the breakpoint as needed
       initSlickSlider();
-    }else {
+    } else {
       $('.smart-products-slick-mobile').slick('unslick');
     }
   }
@@ -664,5 +702,3 @@ jQuery(document).ready(function ($) {
 
 
 });
-
-

@@ -20,9 +20,12 @@
 	<!-- Canonical URLS -->
 	<?php
 		if( is_front_page() ) {
-			echo '<link rel="canonical" href="'. site_url() .'" />';
 			echo '<meta name="robots" content="index, follow">';
-			echo '<title>'.wp_get_document_title().'</title>';
+		}
+
+		// If is archive page then add canonical URL
+		if(is_archive()) {
+			echo '<link rel="canonical" href="'.get_the_permalink().'" />';
 		}
 	?>
 	<link rel="icon" href="<?php echo site_url(); ?>/wp-content/themes/automate-life/assets/images/automatelife-32.jpeg" sizes="32x32" />
@@ -42,36 +45,7 @@
 	
 	?>
 	<!-- Add schema code -->
-	<script type="application/ld+json">
-	{
-	"@context": "https://schema.org",
-	"@type": "<?php echo get_option('article_schema_type_option'); ?>",
-	"mainEntityOfPage": {
-		"@type": "WebPage",
-		"@id": "<?php echo site_url(); ?>"
-	},
-	"headline": "<?php echo get_the_title(); ?>",
-	"description": "<?php echo substr(trim(strip_tags(get_the_excerpt())), 0, 250); ?>",
-	"image": [
-		"<?php echo wp_get_attachment_image_url(get_option('site_logo')); ?>",
-	],  
-	"author": {
-		"@type": "Organization",
-		"name": "<?php echo $_SERVER['HTTP_HOST']; ?>",
-		"url": "<?php echo site_url(); ?>"
-	},  
-	"publisher": {
-		"@type": "Organization",
-		"name": "<?php echo $_SERVER['HTTP_HOST']; ?>",
-		"logo": {
-		"@type": "ImageObject",
-		"url": "<?php echo wp_get_attachment_image_url(get_option('site_logo')); ?>",
-		}
-	},
-	}
-	
-	</script>
-
+	<script type="application/ld+json">{"@context":"https://schema.org","@type":"<?php echo get_option('article_schema_type_option');?>","mainEntityOfPage":{"@type":"WebPage","@id":"<?php echo site_url(); ?>"},"headline":"<?php echo get_the_title(); ?>","description":"<?php echo substr(trim(strip_tags(get_the_excerpt())),0,250); ?>","image":["<?php echo wp_get_attachment_image_url(get_option('site_logo')); ?>"],"author":{"@type":"Organization","name":"<?php echo $_SERVER['HTTP_HOST']; ?>","url":"<?php echo site_url(); ?>"},"publisher":{"@type":"Organization","name":"<?php echo $_SERVER['HTTP_HOST'];?>","logo":{"@type":"ImageObject","url":"<?php echo wp_get_attachment_image_url(get_option('site_logo')); ?>"}}}</script>
 	<?php wp_head(); ?>
 </head>
 
@@ -91,7 +65,7 @@ $desktopBreakpoint = 'lg';
 <div id="page" class="site">
 	<a class="skip-link screen-reader-text" href="#primary"><?php esc_html_e( 'Skip to content', 'automate-life' ); ?></a>
 
-	<header id="masthead" class="site-header container-fluid pt-lg-4 pb-lg-3">
+	<header id="masthead" class="site-header container-fluid pt-lg-4">
 		<div class="row">
 			<div class="header-left col-4 col-lg-1 d-flex align-items-center">
 				<div class="site-branding">
@@ -127,12 +101,6 @@ $desktopBreakpoint = 'lg';
 							}
 						?>
 					</div>
-
-					<!-- Shop Button -->
-					<a type="button"
-					class="header-cta-button text-decoration-none text-uppercase bg-primary py-1 px-3 text-white text-center fw-bold"
-					target="_blank">shop <img src="<?php echo esc_url(site_url()); ?>/wp-content/themes/automate-life/assets/images/header-shop-icon.svg"
-					width="14" height="14" loading="lazy" alt="Shop" class="img-fluid ms-1" /></a>
 				</div>
 				<div class="header-menu-wrapper d-none d-lg-flex align-items-center justify-content-between">
 					<div class="header-primary-navigation flex-grow-1 w-75">
@@ -151,7 +119,7 @@ $desktopBreakpoint = 'lg';
 					<!-- Get the search form -->
 					<?php 
 						if(get_option('enable_search_bar_option') !== false && intval(get_option('enable_search_bar_option')) === 1) {
-							echo '<div class="header-search-form position-relative w-25">';
+							echo '<div class="header-search-form position-relative w-25" style="margin-top: -1.4rem;">';
 							get_search_form();
 							echo '<i class="bi bi-search position-absolute end-0 top-50 translate-middle-y rounded-circle
 							d-flex align-items-center justify-content-center fs-4 text-white bg-primary cursor-pointer

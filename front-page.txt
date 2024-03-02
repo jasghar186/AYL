@@ -4,9 +4,9 @@
 <section class="container-fluid hero-section">
     <div class="row h-100">
         <div class="col-12 col-lg-7 position-relative d-flex flex-column justify-content-center mt-5 mt-lg-0 mb-5">
-            <h1 class="text-primary-user m-0 text-capitalize font-lg lh-lg">Welcome to Automate Your Life</h1>
-            <h2 class="fw-semibold fs-1">Live <!-- <br> --> <span class="text-primary">Smart</span></h2>
-            <p class="fs-4 text-capitalize m-0">Helping you save time and money by building the smart home of your dreams</p>
+            <p class="text-primary-user m-0 text-capitalize">Hello I'm Marty Spargo</p>
+            <h1 class="fw-semibold">Smart Homes <br><span class="text-primary">Expert</span></h1>
+            <p class="fs-4 text-capitalize m-0">Freelance web designer and developer</p>
 
             <!-- Lead Form -->
             <div class="frontpage-lead-form">
@@ -27,16 +27,14 @@
 </section>
 
 <!------------- Welcome Section ----------------->
-<section class="container <?php echo SITE_LAYOUT_SPACE; ?>" style="height: 500px;">
-    <a href="<?php echo site_url(); ?>" class="w-100">
-        <img
-        data-src="<?php echo site_url(); ?>/wp-content/themes/automate-life/assets/images/welcome-banner-automate-life.webp"
-        alt="Welcome To Automate Life"
-        title="Welcome To Automate Life"
-        loading="lazy"
-        class="img-fluid rounded-3 w-100 h-100 object-fit-contain"
-        width="1193" height="745">
-    </a>
+<section class="container-fluid <?php echo SITE_LAYOUT_SPACE; ?>">
+    <img
+    data-src="<?php echo site_url(); ?>/wp-content/themes/automate-life/assets/images/welcome-banner-automate-life.webp"
+    alt="Welcome To Automate Life"
+    title="Welcome To Automate Life"
+    loading="lazy"
+    class="img-fluid rounded-3 w-100"
+    width="1193" height="745">
 </section>
 
 <!------------- As Seen On Section ----------------->
@@ -46,49 +44,49 @@
     <?php
         $asSeenOn = array(
             array(
-                'url' => 'fox5',
-                'title' => 'Fox',
+                'url' => 'As_seen_on_(1)',
+                'title' => 'Boston 25',
+            ),
+            array(
+                'url' => 'As_seen_on_(2)',
+                'title' => 'Fixya',
+            ),
+            array(
+                'url' => 'As_seen_on_(3)',
+                'title' => 'Ifixit',
             ),
             array(
                 'url' => 'As_seen_on_(4)',
                 'title' => 'MSN',
             ),
             array(
-                'url' => 'technopedia_explore_popular_brand_24',
-                'title' => 'Technopedia',
-            ),
-            array(
-                'url' => 'As_seen_on_(7)',
-                'title' => 'Wusa 90',
+                'url' => 'As_seen_on_(5)',
+                'title' => 'The Spruce',
             ),
             array(
                 'url' => 'As_seen_on_(6)',
                 'title' => 'Wiki How',
             ),
             array(
+                'url' => 'As_seen_on_(7)',
+                'title' => 'Wusa 90',
+            ),
+            array(
                 'url' => 'As_seen_on_(8)',
                 'title' => 'Yahoo News',
             ),
             array(
-                'url' => 'As_seen_on_(1)',
-                'title' => 'Boston 25',
-            ),
-            array(
-                'url' => 'As_seen_on_(5)',
-                'title' => 'The Spruce',
+                'url' => 'fox5',
+                'title' => 'Fox',
             ),
             array(
                 'url' => 'As_seen_on_govee',
                 'title' => 'Govee',
             ),
-            array(
-                'url' => 'fox_13_explore_popular_brand_15',
-                'title' => 'Fox 13',
-            ),
         );
         foreach($asSeenOn as $image) {
             echo '<div class="as_seen_on_column flex-grow-1 mb-3 mb-lg-0">'.
-            '<div class="rounded-circle d-flex align-items-center justify-content-center">'.
+            '<div class="rounded-circle p-2 d-flex align-items-center justify-content-center">'.
             '<img data-src="'.site_url().'/wp-content/themes/automate-life/assets/images/'.$image['url'].'.webp"
             width="128" height="128" loading="lazy" title="'.$image['title'].'" alt="'.$image['title'].'" class="img-fluid object-fit-contain" />'.
             '</div>'.
@@ -106,18 +104,21 @@
         $expertsArray = array(
             array(
                 'image' => 'expert-team-1',
-                'name' => 'Brian',
-                'description' => 'One of the most popular smart home Youtubers on the internet, Brian started Automate Your Life all the way back in 2017.',
+                'name' => 'Natsuki',
+                'description' => 'started out as a technician installing smart
+                homes for people over a decade ago. After working for some of the biggest',
             ),
             array(
                 'image' => 'expert-team-2',
-                'name' => 'Marty',
-                'description' => 'Enthusiastically learning about smart home products and growing the Automate Your Life brand through new channels.',
+                'name' => 'Natsuki',
+                'description' => 'started out as a technician installing smart
+                homes for people over a decade ago. After working for some of the biggest',
             ),
             array(
                 'image' => 'expert-team-3',
                 'name' => 'Natsuki',
-                'description' => 'A smart home industry veteran, with over 9 years experience working for some of the biggest companies in the smart home space in the US.',
+                'description' => 'started out as a technician installing smart
+                homes for people over a decade ago. After working for some of the biggest',
             ),
         );
 
@@ -181,6 +182,78 @@
 
 <!------------- Smart Products In Stock Section ----------------->
 <section class="container-fluid <?php echo SITE_LAYOUT_SPACE; ?>">
+    <h2 class="fw-semibold text-capitalize mb-5 text-center">smart products in stock</h2>
+    <div class="row smart-products-slick-mobile">
+
+    <?php 
+    $smartProducts = get_option('shopify_products_option') !== false ? unserialize(get_option('shopify_products_option')) : array();
+    $content = '';
+
+    foreach($smartProducts as $index => $product) {
+        $attachment_id = $product['image'];
+        $image_url = wp_get_attachment_url($attachment_id);
+
+        $img_url = wp_get_attachment_image_src($attachment_id, 'full');
+        $img_url = $img_url[0];
+        $img_title = get_the_title($attachment_id);
+        $img_alt = get_post_meta($attachment_id, '_wp_attachment_image_alt', true);
+
+        $content .= '<div class="col-12 col-md-4">'.
+        '<div class="affiliated-products-card bg-white pt-3 pb-5">'.
+        '<a class="d-inline-block product-image-wrapper d-flex justify-content-center"
+        href="'. esc_attr($product['id']) .'"
+        target="_blank">';
+        if( $image_url ) {
+            $attachment_metadata = wp_get_attachment_metadata($attachment_id);
+            $alt_text = get_post_meta($attachment_id, '_wp_attachment_image_alt', true);
+            $attachment_title = get_the_title($attachment_id);
+            $image_width = isset($attachment_metadata['width']) ? $attachment_metadata['width'] : '';
+            $image_height = isset($attachment_metadata['height']) ? $attachment_metadata['height'] : '';
+
+            $content .= '<img data-src="'. esc_url($image_url) .'"
+            alt="'.esc_attr($alt_text).'"
+            title="'.esc_attr($attachment_title).'"
+            width="'.esc_attr($image_width).'"
+            height="'.esc_attr($image_height).'"
+            class="img-fluid affiliated-product-thumbnail object-fit-contain w-100 h-100"
+            loading="lazy" />';
+        }else {
+            $content .= '<img data-src="'. site_url() .'/wp-content/themes/automate-life/assets/images/dummy_product.webp"
+            alt="Dummy Product"
+            title="Dummy Product"
+            width="185"
+            height="185"
+            class="img-fluid affiliated-product-thumbnail object-fit-contain w-100 h-100"
+            loading="lazy" />';
+        }
+        $content .= '</a>'.
+        '<div class="affiliated-product-content mt-30 px-2">'.
+        '<h4 
+        class="mb-2 pb-1 text-center text-lg-start">
+        <a
+        href="'.esc_url($product['url']).'"
+        class="text-dark text-capitalize text-decoration-none font-30 fw-light"
+        target="_blank">'. wp_trim_words(esc_html($product['title']), 15) .'</a></h4>'.
+        '<p class="text-center text-lg-start text-dark font-xl mb-5">'. esc_html($product['description']) .'</p>'.
+        '<div class="d-flex align-items-center justify-content-center">'.
+        '<a type="button"
+        class="py-2 px-5 text-decoration-none bg-primary text-capitalize text-center rounded-circle-px mx-auto"
+        href="'.esc_attr($product['url']).'"
+        target="_blank">Shop now</a>'.
+        '</div>'.
+        '</div>'.
+        '</div>'.
+        '</div>';
+    }
+
+    echo $content;
+    ?>
+    </div>
+</section>
+
+
+<!------------- Smart Products In Stock Section ----------------->
+<section class="container-fluid <?php echo SITE_LAYOUT_SPACE; ?>">
     <h2 class="fw-semibold text-capitalize mb-5 text-center">Explore Popular Brands</h2>
     <div class="popular_brands_slider row">
         <?php
@@ -198,8 +271,69 @@
                     'title' => 'Aqara',
                 ),
                 array(
+                    'url' => 'arlo_explore_popular_brand_4',
+                    'title' => 'ARLO',
+                ),
+                array(
+                    'url' => 'blink_explore_popular_brand_5',
+                    'title' => 'Blink',
+                ),
+                array(
+                    'url' => 'dell_explore_popular_brand_6',
+                    'title' => 'Dell',
+                ),
+                array(
+                    'url' => 'disnep_explore_popular_brand_7',
+                    'title' => 'Disney',
+                ),
+                array(
+                    'url' => 'directv_explore_popular_brand_8',
+                    'title' => 'Directv',
+                ),
+                array(
+                    'url' => 'eufy_explore_popular_brand_9',
+                    'title' => 'EUFY',
+                ),
+                array(
+                    'url' => 'govee_explore_popular_brand_10',
+                    'title' => 'Govee',
+                ),
+                array(
                     'url' => 'hisense_explore_popular_brand_11',
                     'title' => 'Hisense',
+                ),
+                array(
+                    'url' => 'hulu_explore_popular_brand_12',
+                    'title' => 'Hulu',
+                ),
+                
+                array(
+                    'url' => 'LG_explore_popular_brand_13',
+                    'title' => 'LG',
+                ),
+                array(
+                    'url' => 'FOX_explore_popular_brand_14',
+                    'title' => 'FOX 5',
+                ),
+                array(
+                    'url' => 'FOX_13_explore_popular_brand_15',
+                    'title' => 'FOX 13',
+                ),
+                array(
+                    'url' => 'meross_explore_popular_brand_16',
+                    'title' => 'Meross',
+                ),
+                array(
+                    'url' => 'netflix_explore_popular_brand_18',
+                    'title' => 'Netflix',
+                ),
+                array(
+                    'url' => 'roku_explore_popular_brand_19',
+                    'title' => 'Roku',
+                ),
+                array(
+                    'url' => 'samsung_explore_popular_brand_20',
+                    'title' => 'Samsung',
                 ),
                 array(
                     'url' => 'sony_explore_popular_brand_21',
@@ -214,76 +348,29 @@
                     'title' => 'Switch bot',
                 ),
                 array(
-                    'url' => 'eufy_explore_popular_brand_9',
-                    'title' => 'EUFY',
-                ),
-                array(
-                    'url' => 'directv_explore_popular_brand_8',
-                    'title' => 'Directv',
-                ),
-                array(
-                    'url' => 'disnep_explore_popular_brand_7',
-                    'title' => 'Disney',
-                ),
-                array(
-                    'url' => 'arlo_explore_popular_brand_4',
-                    'title' => 'ARLO',
-                ),
-                array(
-                    'url' => 'roku_explore_popular_brand_19',
-                    'title' => 'Roku',
-                ),
-                array(
-                    'url' => 'LG_explore_popular_brand_13',
-                    'title' => 'LG',
+                    'url' => 'technopedia_explore_popular_brand_24',
+                    'title' => 'Technopedia',
                 ),
                 array(
                     'url' => 'verison_explore_popular_brand_25',
                     'title' => 'Verison',
                 ),
                 array(
-                    'url' => 'yolink_explore_popular_brand_28',
-                    'title' => 'Yolink',
-                ),  
-                array(
-                    'url' => 'govee-01-01',
-                    'title' => 'Govee',
-                ),  
-                array(
-                    'url' => 'blink_explore_popular_brand_5',
-                    'title' => 'Blink',
-                ),
-                array(
-                    'url' => 'samsung_explore_popular_brand_20',
-                    'title' => 'Samsung',
-                ),
-                array(
-                    'url' => 'dell_explore_popular_brand_6',
-                    'title' => 'Dell',
-                ),
-                array(
-                    'url' => 'netflix_explore_popular_brand_18',
-                    'title' => 'Netflix',
-                ),
-                array(
-                    'url' => 'meross_explore_popular_brand_16',
-                    'title' => 'Meross',
+                    'url' => 'vizo_explore_popular_brand_26',
+                    'title' => 'VIZO',
                 ),
                 array(
                     'url' => 'xfinity_explore_popular_brand_27',
                     'title' => 'Xfinity',
                 ),
                 array(
-                    'url' => 'vizo_explore_popular_brand_26',
-                    'title' => 'VIZO',
-                ),
-                              
+                    'url' => 'yolink_explore_popular_brand_28',
+                    'title' => 'Yolink',
+                ),                
             );
             foreach($popular_brands_arr as $brand) {
                 echo '<div class="popular_brands_slide col-2">'.
                 '<div class="circular-image rounded-circle p-3 d-flex align-items-center justify-content-center">'.
-                '<a href="'.site_url().'/tag' . '/'.str_replace(' ', '', strtolower($brand['title'])).'"
-                class="w-100">'.
                 '<img
                 data-src="'.site_url().'/wp-content/themes/automate-life/assets/images/'.$brand['url'].'.webp"
                 alt="'.$brand['title'].'"
@@ -292,7 +379,6 @@
                 width="128"
                 height="128"
                 class="img-fluid" />'.
-                '</a>'.
                 '</div>'.
                 '</div>';
             }
@@ -344,7 +430,7 @@
                 $image = 'welcome-banner-automate-life';
             }
 
-            echo  '<div class="col-12 col-md-6 col-lg-3 mb-4 category-card">'.
+            echo  '<div class="col-12 col-md-6 mb-4 category-card">'.
             '<div class="post-thumbnail position-relative">'.
             '<img
             data-src="'.site_url().'/wp-content/themes/automate-life/assets/images/'.$image.'.webp"

@@ -28,7 +28,7 @@ get_header();
 			<div class="row">
 				<div class="col-12 col-md-6 col-lg-5"></div>
 				<div class="col-12 col-md-6 col-lg-7">
-					<p class="text-dark text-center text-lg-left fs-6">Please search for what you are looking for</p>
+					<p class="text-dark text-center text-lg-start fs-6">Please search for what you are looking for</p>
 					<?php 
 					echo '<div class="header-search-form position-relative">';
 					get_search_form();
@@ -36,7 +36,7 @@ get_header();
 					d-flex align-items-center justify-content-center fs-4 text-white bg-primary cursor-pointer"></i>';
 					echo '</div>';
 					?>
-					<p class="text-grey mt-3 text-center mt-lg-1 text-lg-left">Or explore our categories below</p>
+					<p class="text-grey mt-3 text-center mt-lg-1 text-lg-start">Or explore our categories below</p>
 				</div>
 			</div>
 

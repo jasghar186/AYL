@@ -9,7 +9,7 @@
 
 ?>
 
-<article id="post-<?php the_ID(); ?>" <?php post_class('col-12 col-md-6 col-lg-4 col-xxl-3 bg-transparent mb-5'); ?>>
+<article id="post-<?php the_ID(); ?>" <?php post_class('col-12 col-md-6 col-lg-4 bg-transparent mb-5'); ?>>
 	<div class="blog-post-card hadow-sm h-100 bg-white rounded-4 pb-3 position-relative">
 		<?php automate_life_post_thumbnail(); ?>
 

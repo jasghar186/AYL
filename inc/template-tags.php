@@ -218,10 +218,10 @@ if ( ! function_exists( 'automate_life_email_recaptcha' ) ):
 		$form = '<form
 		action="#"
 		method="post"
-		class="lead-form w-100 position-relative">
+		class="lead-form w-100 position-relative" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
 		<label for="'.$placement.'" class="w-100 d-block">
 		<input type="email" name="'.$placement.'" id="'.$placement.'" required
-		placeholder="Enter Your Email Address"
+		placeholder="Enter Your Email Address" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
 		class="p-3 rounded-3 w-100 border-0 '.($theme === 'dark' ? 'bg-primary text-light placeholder-white' : 'bg-white text-dark placeholder-black').'">
 		</label>
 		<label for="lead-form-prevent-submission" class="form-hidden-field">
@@ -230,7 +230,6 @@ if ( ! function_exists( 'automate_life_email_recaptcha' ) ):
 		<input type="submit" value="subscribe"
 		class="text-capitalize text-center position-absolute top-50 border-0
 		translate-middle-y rounded-2 '.($theme === 'dark' ? 'bg-white text-dark' : 'bg-primary text-light').'">
-		<p class="lead-form-response p-0 m-0 position-absolute start-0 d-none" style="bottom:-2rem;"></p>
 		</form>';
 
 		return $form;
@@ -259,9 +258,11 @@ if ( ! function_exists( 'automate_life_email_recaptcha_layout_2' ) ):
 		placeholder="Enter Your Email"
 		class="p-3 rounded-3 w-100 border">
 		</label>
+		<label for="lead-form-prevent-submission" class="form-hidden-field">
+		<input type="text" class="lead-form-prevent-submission form-hidden-field" name="lead-form-prevent-submission"/>
+		</label>
 		<input type="submit" value="subscribe"
 		class="text-uppercase bg-primary text-center w-100 d-block fs-3 rounded-2 text-white mt-3">
-		<p class="lead-form-response p-0 m-0 position-absolute start-0 d-none" style="bottom:-2rem;"></p>
 		</form>';
 
 		return $form;
